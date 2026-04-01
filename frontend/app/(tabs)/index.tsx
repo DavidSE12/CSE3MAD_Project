@@ -1,21 +1,33 @@
-import { Link } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
-import Instruction from '../parachute/instruction';
+import Instruction from "@/components/Instruction";
+import { StyleSheet, View } from "react-native";
+
+const instructionData = {
+  instruction:
+    "Measure the voltage across the resistor using a multimeter and record the value. Ensure the circuit is powered before taking the reading.",
+
+  tools: [
+    "Multimeter",
+    "Resistor",
+    "Breadboard",
+    "Connecting wires",
+    "Power supply",
+  ],
+
+  diagramImage:
+    "https://upload.wikimedia.org/wikipedia/commons/6/6a/Ohm%27s_Law_Pie_Chart.svg",
+
+  formulas: ["V = IR", "P = VI", "R = V / I"],
+};
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Instruction
-        tools="Parachute, Weights, Stopwatch, Measuring Tape"
-        diagramImage="https://i.imgur.com/3X9Z5sP.png"
-        formula="Drag Force = 0.5 × Air Density × Velocity² × Drag Coefficient × Area"
-        instruction="1. Set up the parachute and attach weights to it.\n2. Drop the parachute from a fixed height and time how long it takes to reach the ground.\n3. Measure the distance fallen and calculate the velocity.\n4. Use the formula to calculate the drag force acting on the parachute."
+        instruction={instructionData.instruction}
+        tools={instructionData.tools}
+        diagramImage={instructionData.diagramImage}
+        formulas={instructionData.formulas}
       />
-      <View style={styles.footer}>
-        <Link href="/parachute/calculate" style={styles.button}>
-          <Text style={styles.buttonText}>Start Calculating →</Text>
-        </Link>
-      </View>
     </View>
   );
 }
@@ -26,20 +38,20 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 16,
-    backgroundColor: '#F0F4F8',
+    backgroundColor: "#F0F4F8",
   },
   button: {
-    backgroundColor: '#1A2F5A',
+    backgroundColor: "#1A2F5A",
     borderRadius: 12,
     paddingVertical: 14,
-    alignItems: 'center',
-    display: 'flex',
-    justifyContent: 'center',
+    alignItems: "center",
+    display: "flex",
+    justifyContent: "center",
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'center',
+    fontWeight: "700",
+    textAlign: "center",
   },
 });
