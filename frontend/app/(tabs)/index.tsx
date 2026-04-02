@@ -1,4 +1,5 @@
 import Instruction from "@/components/Instruction";
+import VideoRecorder from "@/components/VideoRecorder";
 import { StyleSheet, View } from "react-native";
 
 const instructionData = {
@@ -28,6 +29,7 @@ export default function HomeScreen() {
         diagramImage={instructionData.diagramImage}
         formulas={instructionData.formulas}
       />
+      <VideoRecorder />
     </View>
   );
 }
