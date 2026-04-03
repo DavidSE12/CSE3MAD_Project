@@ -1,42 +1,103 @@
-import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
-import { useState } from "react";
+import {
+  CameraType,
+  CameraView,
+  useCameraPermissions,
+  useMicrophonePermissions,
+} from "expo-camera";
+import { useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
 export default function VideoRecorder() {
   const [facing, setFacing] = useState<CameraType>("back");
-  const [permission, requestPermission] = useCameraPermissions();
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [audioPermission, requestAudioPermission] = useMicrophonePermissions();
+  const [isRecording, setIsRecording] = useState(false);
+  const [video, setVideo] = useState<string | null>(null);
+  const [isCameraReady, setIsCameraReady] = useState(false);
 
-  // camera permission still loading
+  const cameraRef = useRef<CameraView | null>(null);
 
-  if (!permission) {
+  // permission still loading
+  if (!cameraPermission || !audioPermission) {
     return <View />;
   }
 
   // permission not granted yet
-  if (!permission.granted) {
+  if (!cameraPermission.granted || !audioPermission) {
     return (
       <View>
         <Text>Camera Permission needs to be granted to record</Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        <Button
+          onPress={() => {
+            requestAudioPermission();
+            requestCameraPermission();
+          }}
+          title="grant permission"
+        />
       </View>
     );
   }
 
   // flip camera
   function toggleCameraFunction() {
+    // reset readiness
+    setIsCameraReady(false);
     setFacing((current) => (current === "back" ? "front" : "back"));
   }
 
+  const handleRecord = async () => {
+    if (!cameraRef.current || !isCameraReady)
+      return console.log("Record clicked but camera not ready");
+
+    try {
+      setIsRecording(true);
+      console.log("Started recording...");
+
+      const video = await cameraRef.current.recordAsync({
+        maxDuration: 90,
+      });
+      setVideo(video?.uri ?? null);
+      console.log("Video saved at: ", video?.uri);
+    } catch (error) {
+      console.log(error);
+      setIsRecording(false);
+    }
+  };
+
+  const handleStopRecording = async () => {
+    if (cameraRef.current && isRecording) {
+      console.log("Stopping recording...");
+      cameraRef.current.stopRecording();
+      setIsRecording(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing}>
+      <CameraView
+        style={styles.camera}
+        facing={facing}
+        ref={cameraRef}
+        mode="video"
+        onCameraReady={() => {
+          console.log("Camera is ready");
+          setIsCameraReady(true);
+        }}
+      />
+      <View style={styles.controls}>
         <TouchableOpacity
           style={styles.buttonFlip}
           onPress={toggleCameraFunction}
         >
           <Text>Flip camera</Text>
         </TouchableOpacity>
-      </CameraView>
+
+        <Button
+          // disable button if camera is not ready
+          disabled={!isCameraReady}
+          title={isRecording ? "Stop Recording" : "Record Video"}
+          onPress={isRecording ? handleStopRecording : handleRecord}
+        />
+      </View>
     </View>
   );
 }
