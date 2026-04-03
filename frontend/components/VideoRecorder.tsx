@@ -1,6 +1,6 @@
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import { useState } from "react";
-import { Button, Text, TouchableOpacity, View } from "react-native";
+import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function VideoRecorder() {
   const [facing, setFacing] = useState<CameraType>("back");
@@ -28,12 +28,35 @@ export default function VideoRecorder() {
   }
 
   return (
-    <View>
-      <CameraView facing={facing}>
-        <TouchableOpacity onPress={toggleCameraFunction}>
+    <View style={styles.container}>
+      <CameraView style={styles.camera} facing={facing}>
+        <TouchableOpacity
+          style={styles.buttonFlip}
+          onPress={toggleCameraFunction}
+        >
           <Text>Flip camera</Text>
         </TouchableOpacity>
       </CameraView>
     </View>
   );
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  camera: {
+    flex: 1,
+  },
+  buttonFlip: {},
+  video: {
+    flex: 1,
+    alignSelf: "stretch",
+  },
+  controls: {
+    position: "absolute",
+    bottom: 40,
+    width: "100%",
+    alignItems: "center",
+  },
+});
