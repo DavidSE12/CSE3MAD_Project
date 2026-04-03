@@ -55,7 +55,8 @@
           "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
         }
       ],
-      "react-native-video"
+      "react-native-video",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true,

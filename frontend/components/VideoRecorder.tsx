@@ -1,3 +1,4 @@
+import { ResizeMode, Video } from "expo-av";
 import {
   CameraType,
   CameraView,
@@ -6,6 +7,7 @@ import {
 } from "expo-camera";
 import { useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
 export default function VideoRecorder() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
@@ -52,11 +54,11 @@ export default function VideoRecorder() {
       setIsRecording(true);
       console.log("Started recording...");
 
-      const video = await cameraRef.current.recordAsync({
+      const videoResult = await cameraRef.current.recordAsync({
         maxDuration: 90,
       });
-      setVideo(video?.uri ?? null);
-      console.log("Video saved at: ", video?.uri);
+      setVideo(videoResult?.uri ?? null);
+      console.log("Video saved at: ", videoResult?.uri);
     } catch (error) {
       console.log(error);
       setIsRecording(false);
@@ -70,6 +72,26 @@ export default function VideoRecorder() {
       setIsRecording(false);
     }
   };
+
+  // after recording
+  if (!isRecording && video) {
+    return (
+      <View style={styles.container}>
+        <Video
+          style={styles.fullPreview}
+          source={{ uri: video }}
+          useNativeControls
+          resizeMode={ResizeMode.CONTAIN}
+          isLooping
+        />
+        <View style={styles.previewControls}>
+          <Button title="Discard & Retake" onPress={() => setVideo(null)} />
+          {/* empty for now */}
+          <Button title="Proceed" />
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -119,5 +141,14 @@ const styles = StyleSheet.create({
     bottom: 40,
     width: "100%",
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+  },
+  fullPreview: {
+    flex: 1,
+  },
+  previewControls: {
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
 });
