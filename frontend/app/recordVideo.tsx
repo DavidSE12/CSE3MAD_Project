@@ -1,4 +1,4 @@
-import VideoRecorder from "@/components/VideoRecorder";
+import VideoRecorder from "@/components/Video/VideoRecorder";
 
 export default function RecordVideo() {
   return <VideoRecorder />;

@@ -1,6 +1,6 @@
 import Instruction from "@/components/Instruction";
-import VideoRecorder from "@/components/VideoRecorder";
-import { StyleSheet, View } from "react-native";
+import { router } from "expo-router";
+import { Button, StyleSheet, View } from "react-native";
 
 const instructionData = {
   instruction:
@@ -29,7 +29,7 @@ export default function HomeScreen() {
         diagramImage={instructionData.diagramImage}
         formulas={instructionData.formulas}
       />
-      <VideoRecorder />
+      <Button title="Record" onPress={() => router.push("/recordVideo")} />
     </View>
   );
 }

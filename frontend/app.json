@@ -25,9 +25,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "permissions": [
-        "android.permission.CAMERA"
-      ],
+      "permissions": ["android.permission.CAMERA"],
       "package": "com.anonymous.frontend"
     },
     "web": {
@@ -49,14 +47,20 @@
         }
       ],
       [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
+      ],
+      [
         "react-native-vision-camera",
         {
           "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
           "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
         }
       ],
-      "react-native-video",
-      "expo-video"
+      "react-native-video"
     ],
     "experiments": {
       "typedRoutes": true,

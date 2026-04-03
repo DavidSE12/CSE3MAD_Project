@@ -1,4 +1,3 @@
-import { ResizeMode, Video } from "expo-av";
 import {
   CameraType,
   CameraView,
@@ -8,13 +7,22 @@ import {
 import { useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export default function VideoRecorder() {
+interface CameraModuleProps {
+  onVideoCaptured: (uri: string) => void;
+  onReadyChange: (isReady: boolean) => void;
+  isCameraReady: boolean;
+}
+
+export default function CameraModule({
+  onVideoCaptured,
+  onReadyChange,
+  isCameraReady,
+}: CameraModuleProps) {
   const [facing, setFacing] = useState<CameraType>("back");
+  const [isRecording, setIsRecording] = useState(false);
+
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [audioPermission, requestAudioPermission] = useMicrophonePermissions();
-  const [isRecording, setIsRecording] = useState(false);
-  const [video, setVideo] = useState<string | null>(null);
-  const [isCameraReady, setIsCameraReady] = useState(false);
 
   const cameraRef = useRef<CameraView | null>(null);
 
@@ -42,7 +50,7 @@ export default function VideoRecorder() {
   // flip camera
   function toggleCameraFunction() {
     // reset readiness
-    setIsCameraReady(false);
+    onReadyChange(false);
     setFacing((current) => (current === "back" ? "front" : "back"));
   }
 
@@ -57,7 +65,7 @@ export default function VideoRecorder() {
       const videoResult = await cameraRef.current.recordAsync({
         maxDuration: 90,
       });
-      setVideo(videoResult?.uri ?? null);
+      if (videoResult) onVideoCaptured(videoResult?.uri);
       console.log("Video saved at: ", videoResult?.uri);
     } catch (error) {
       console.log(error);
@@ -73,26 +81,6 @@ export default function VideoRecorder() {
     }
   };
 
-  // after recording
-  if (!isRecording && video) {
-    return (
-      <View style={styles.container}>
-        <Video
-          style={styles.fullPreview}
-          source={{ uri: video }}
-          useNativeControls
-          resizeMode={ResizeMode.CONTAIN}
-          isLooping
-        />
-        <View style={styles.previewControls}>
-          <Button title="Discard & Retake" onPress={() => setVideo(null)} />
-          {/* empty for now */}
-          <Button title="Proceed" />
-        </View>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       <CameraView
@@ -102,8 +90,9 @@ export default function VideoRecorder() {
         mode="video"
         onCameraReady={() => {
           console.log("Camera is ready");
-          setIsCameraReady(true);
+          onReadyChange(true);
         }}
+        onMountError={(error) => console.log("Camera mount error", error)}
       />
       <View style={styles.controls}>
         <TouchableOpacity
