@@ -6,29 +6,56 @@ import {
 } from "expo-camera";
 import { useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+
 
 interface CameraModuleProps {
-  onVideoCaptured: (uri: string) => void;
+  onVideoCaptured: (uri: string ) => void;
   onReadyChange: (isReady: boolean) => void;
   isCameraReady: boolean;
 }
+
+
 
 export default function CameraModule({
   onVideoCaptured,
   onReadyChange,
   isCameraReady,
 }: CameraModuleProps) {
+  // Camera Facing State
   const [facing, setFacing] = useState<CameraType>("back");
   const [isRecording, setIsRecording] = useState(false);
 
+  const [uploadVideo , setUploadVideo] = useState(false);
+
+  // 
+  const pickFromGallery = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        quality: 1,
+        selectionLimit: 1, // Only 1 video
+      });
+
+      if (!result.canceled && result.assets?.[0]?.uri) {
+        onVideoCaptured(result.assets[0].uri);
+        console.log('Video selected from gallery:', result.assets[0]);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Grant Permissions
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [audioPermission, requestAudioPermission] = useMicrophonePermissions();
 
+  // Reference to the CameraView component to control recording
   const cameraRef = useRef<CameraView | null>(null);
 
   // permission still loading
   if (!cameraPermission || !audioPermission) {
-    return <View />;
+    return <View />; // Show loading state in here later
   }
 
   // permission not granted yet
@@ -65,6 +92,7 @@ export default function CameraModule({
       const videoResult = await cameraRef.current.recordAsync({
         maxDuration: 90,
       });
+
       if (videoResult) onVideoCaptured(videoResult?.uri);
       console.log("Video saved at: ", videoResult?.uri);
     } catch (error) {
@@ -108,6 +136,11 @@ export default function CameraModule({
           title={isRecording ? "Stop Recording" : "Record Video"}
           onPress={isRecording ? handleStopRecording : handleRecord}
         />
+
+        <Button
+        title={uploadVideo ? "Upload Video" : "UploadVideo"}
+        onPress={pickFromGallery}/>
+
       </View>
     </View>
   );
