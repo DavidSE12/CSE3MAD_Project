@@ -36,6 +36,7 @@ function HomeScreen() {
         formulas={instructionData.formulas}
       />
       <Link href="/recordVideo">Record video</Link>
+      <Link href="/acc">Accelerometer</Link>
     </View>
   );
 }
