@@ -4,18 +4,15 @@ import {
   useCameraPermissions,
   useMicrophonePermissions,
 } from "expo-camera";
+import * as ImagePicker from "expo-image-picker";
 import { useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-
 
 interface CameraModuleProps {
-  onVideoCaptured: (uri: string ) => void;
+  onVideoCaptured: (uri: string) => void;
   onReadyChange: (isReady: boolean) => void;
   isCameraReady: boolean;
 }
-
-
 
 export default function CameraModule({
   onVideoCaptured,
@@ -26,20 +23,20 @@ export default function CameraModule({
   const [facing, setFacing] = useState<CameraType>("back");
   const [isRecording, setIsRecording] = useState(false);
 
-  const [uploadVideo , setUploadVideo] = useState(false);
+  const [uploadVideo, setUploadVideo] = useState(false);
 
-  // 
+  //
   const pickFromGallery = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        mediaTypes: ["videos"],
         quality: 1,
         selectionLimit: 1, // Only 1 video
       });
 
       if (!result.canceled && result.assets?.[0]?.uri) {
         onVideoCaptured(result.assets[0].uri);
-        console.log('Video selected from gallery:', result.assets[0]);
+        console.log("Video selected from gallery:", result.assets[0]);
       }
     } catch (error) {
       console.error(error);
@@ -138,9 +135,9 @@ export default function CameraModule({
         />
 
         <Button
-        title={uploadVideo ? "Upload Video" : "UploadVideo"}
-        onPress={pickFromGallery}/>
-
+          title={uploadVideo ? "Upload Video" : "UploadVideo"}
+          onPress={pickFromGallery}
+        />
       </View>
     </View>
   );

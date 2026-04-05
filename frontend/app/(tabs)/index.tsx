@@ -1,4 +1,4 @@
-import Instruction from "../../components/instruction";
+import Instruction from "@/components/Instruction";
 import { router } from "expo-router";
 import { Button, StyleSheet, View } from "react-native";
 
