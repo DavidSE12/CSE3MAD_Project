@@ -1,43 +1,24 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useTheme } from "@react-navigation/native";
+import { Text } from "react-native";
 
-import Instruction from "../../components/instruction";
-import { Link } from "expo-router";
-import { View } from "react-native";
-import ParachuteScreen from "../parachute/calculate";
+import HomeScreen from "./index";
+import ParachuteScreen from "../../src/features/parachute/calculateScreen";
+import { colors } from "../../src/theme";
 
 const Tab = createBottomTabNavigator();
 
-const instructionData = {
-  instruction:
-    "Measure the voltage across the resistor using a multimeter and record the value. Ensure the circuit is powered before taking the reading.",
+// Placeholder screens for other tabs (you can create these later)
+function LeaderboardScreen() {
+  return <Text>Leaderboard</Text>;
+}
 
-  tools: [
-    "Multimeter",
-    "Resistor",
-    "Breadboard",
-    "Connecting wires",
-    "Power supply",
-  ],
+function TeamScreen() {
+  return <Text>Team</Text>;
+}
 
-  diagramImage:
-    "https://upload.wikimedia.org/wikipedia/commons/6/6a/Ohm%27s_Law_Pie_Chart.svg",
-
-  formulas: ["V = IR", "P = VI", "R = V / I"],
-};
-
-function HomeScreen() {
-  return (
-    <View>
-      <Instruction
-        instruction={instructionData.instruction}
-        tools={instructionData.tools}
-        diagramImage={instructionData.diagramImage}
-        formulas={instructionData.formulas}
-      />
-      <Link href="/recordVideo">Record video</Link>
-    </View>
-  );
+function SettingScreen() {
+  return <Text>Settings</Text>;
 }
 
 export default function TabsLayout() {
@@ -46,8 +27,15 @@ export default function TabsLayout() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary,
-        headerShown: true,
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+          paddingBottom: 5,
+          paddingTop: 5,
+        },
+        headerShown: false,
       }}
     >
       <Tab.Screen
@@ -55,15 +43,39 @@ export default function TabsLayout() {
         component={HomeScreen}
         options={{
           title: "Home",
-          headerTitle: "Instructions",
+          headerTitle: "Home",
+          tabBarLabel: "Home",
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>🏠</Text>,
         }}
       />
       <Tab.Screen
-        name="parachute"
-        component={ParachuteScreen}
+        name="leaderboard"
+        component={LeaderboardScreen}
         options={{
-          title: "Parachute",
-          headerTitle: "Calculate",
+          title: "Leaderboard",
+          headerTitle: "Leaderboard",
+          tabBarLabel: "Leaderboard",
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>📊</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="team"
+        component={TeamScreen}
+        options={{
+          title: "Team",
+          headerTitle: "Team",
+          tabBarLabel: "Team",
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>👥</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="setting"
+        component={SettingScreen}
+        options={{
+          title: "Settings",
+          headerTitle: "Settings",
+          tabBarLabel: "Setting",
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>⚙️</Text>,
         }}
       />
     </Tab.Navigator>

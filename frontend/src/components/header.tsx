@@ -1,0 +1,91 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Link } from 'expo-router';
+import { colors, spacing, borderRadius } from '../theme';
+
+interface HeaderProps {
+  userName?: string;
+}
+
+const Header: React.FC<HeaderProps> = ({ userName = 'User' }) => {
+  const [greeting, setGreeting] = useState('Good morning');
+
+  useEffect(() => {
+    // Determine greeting based on time of day
+    const hour = new Date().getHours();
+    if (hour >= 12 && hour < 18) {
+      setGreeting('Good afternoon');
+    } else if (hour >= 18) {
+      setGreeting('Good evening');
+    } else {
+      setGreeting('Good morning');
+    }
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.greetingContainer}>
+          <Text style={styles.greeting}>{greeting}</Text>
+          <Text style={styles.userName}>{userName}</Text>
+        </View>
+
+        {/* User Avatar - Link to Settings */}
+        <Link href="../../setting" asChild>
+          <Pressable style={styles.avatarButton}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>👤</Text>
+            </View>
+          </Pressable>
+        </Link>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'transparent',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 0,
+  },
+  content: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  greetingContainer: {
+    flex: 1,
+  },
+  greeting: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontWeight: '500',
+    marginBottom: spacing.xs,
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+  },
+  avatarButton: {
+    padding: spacing.xs,
+    borderRadius: borderRadius.lg,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.accent,
+  },
+  avatarText: {
+    fontSize: 24,
+  },
+});
+
+export default Header;
