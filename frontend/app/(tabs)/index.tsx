@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 import React from 'react';
 import { View, ScrollView, Text, StyleSheet } from 'react-native';
 import TeamInfoCard from '../../src/components/TeamInfoCard';
 import ActivityCard from '../../src/components/ActivityCard';
 import Header from '../../src/components/header';
 import { colors, spacing, borderRadius, shadows } from '../../src/theme';
+=======
+import Instruction from "@/components/Instruction";
+import { router } from "expo-router";
+import { Button, StyleSheet, View } from "react-native";
+>>>>>>> b5d239873316a683d6da4d895c7f4cf459527e69
 
 interface Activity {
   id: string;

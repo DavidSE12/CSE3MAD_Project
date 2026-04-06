@@ -2,9 +2,10 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useTheme } from "@react-navigation/native";
 import { Text } from "react-native";
 
-import HomeScreen from "./index";
-import ParachuteScreen from "../../src/features/parachute/calculateScreen";
-import { colors } from "../../src/theme";
+import Instruction from "@/components/Instruction";
+import { Link } from "expo-router";
+import { View } from "react-native";
+import ParachuteScreen from "../parachute/calculate";
 
 const Tab = createBottomTabNavigator();
 
