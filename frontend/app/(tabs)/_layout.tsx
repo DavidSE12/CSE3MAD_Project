@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useTheme } from "@react-navigation/native";
 
-import Instruction from "@/components/Instruction";
+import Instruction from "@/components/instruction";
 import { Link } from "expo-router";
 import { View } from "react-native";
 import ParachuteScreen from "../parachute/calculate";
