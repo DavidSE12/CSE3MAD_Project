@@ -1,5 +1,5 @@
 import { Accelerometer } from "expo-sensors";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 // low-pass filter
 const EMA_ALPHA = 0.15;
@@ -10,7 +10,7 @@ const MIN_BREATH_INTERVAL = 1500; // (ms) = 1.5s
 // update frequency
 const UPDATE_INTERVAL = 50; // (ms)
 
-// mimn amplitude required for a peak to be real breathing, rejecting large body movements
+// min amplitude required for a peak to be real breathing, rejecting large body movements
 const MOTION_THRESHOLD = 0.002;
 
 // n.o recent breath intervals used to compute bpm
@@ -41,6 +41,8 @@ export default function useBreathTracker() {
   const subscription = useRef<ReturnType<
     typeof Accelerometer.addListener
   > | null>(null);
+
+  const [isRecording, setIsRecording] = useState(false);
 
   const handleData = ({ x, y, z }: { x: number; y: number; z: number }) => {
     // persist
@@ -104,18 +106,38 @@ export default function useBreathTracker() {
     prevSlope.current = currentSlope;
   };
 
-  useEffect(() => {
+  const start = () => {
+    if (isRecording) return;
     Accelerometer.setUpdateInterval(UPDATE_INTERVAL);
-
     // on mount - subscribe
     subscription.current = Accelerometer.addListener(handleData);
+    setIsRecording(true);
+  };
 
-    // cleanup when unmount
-    return () => {
-      subscription.current?.remove();
-      subscription.current = null;
-    };
-  }, []);
+  const reset = () => {
+    subscription.current?.remove();
+    subscription.current = null;
 
-  return { bpm, x, y, z };
+    // reset displayed data
+    setData({ x: 0, y: 0, z: 0 });
+    setBpm(0);
+
+    setIsRecording(false);
+
+    // reset references
+    prevFilteredMag.current = 0;
+    prevSlope.current = 0;
+    intervals.current = [];
+    lastPeakTime.current = null;
+
+    countPeak = 0;
+  };
+
+  // cleanup when unmount
+  const stop = () => {
+    // refresh everything
+    reset();
+  };
+
+  return { bpm, x, y, z, start, stop, isRecording };
 }
