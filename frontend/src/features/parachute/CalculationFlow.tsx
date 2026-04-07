@@ -1,3 +1,4 @@
+import { parachuteCalculate } from "@/lib/parachute";
 import { useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,7 +19,20 @@ export default function CalculationFlow() {
     netForce: "",
     dragForce: "",
   });
-  const [isCorrect, setIsCorrect] = useState(false);
+
+  // for counting correct/incorrect answers
+  const [fieldResults, setFieldResults] = useState({
+    velocity: null as boolean | null,
+    acceleration: null as boolean | null,
+    netForce: null as boolean | null,
+    dragForce: null as boolean | null,
+  });
+
+  // points for correct answers
+  const [pts, setPts] = useState(0);
+
+  // correct answers
+  const [correct, setCorrect] = useState(0);
 
   // INPUT step: data entry
   if (step === "INPUT") {
@@ -122,7 +136,61 @@ export default function CalculationFlow() {
     );
   }
 
-  return null;
+  const result = () => {
+    const t = parseFloat(input.time);
+    const d = parseFloat(input.distance);
+    const m = parseFloat(input.mass);
+
+    return parachuteCalculate({ time: t, distance: d, mass: m });
+  };
+
+  function validate() {
+    const t = parseFloat(input.time);
+    const d = parseFloat(input.distance);
+    const m = parseFloat(input.mass);
+
+    const result = parachuteCalculate({ time: t, distance: d, mass: m });
+
+    const entered = {
+      velocity: parseFloat(userCalculation.velocity),
+      acceleration: parseFloat(userCalculation.acceleration),
+      netForce: parseFloat(userCalculation.netForce),
+      dragForce: parseFloat(userCalculation.dragForce),
+    };
+
+    // accept small rounding differences
+    const EPS = 0.05;
+    // function to check if answer is correct or not
+    const nearlyEqual = (a: number, b: number) => Math.abs(a - b) <= EPS;
+
+    const validationMap = {
+      velocity: nearlyEqual(
+        parseFloat(userCalculation.velocity),
+        result.velocity,
+      ),
+      acceleration: nearlyEqual(
+        parseFloat(userCalculation.acceleration),
+        result.acceleration,
+      ),
+      netForce: nearlyEqual(
+        parseFloat(userCalculation.netForce),
+        result.netForce,
+      ),
+      dragForce: nearlyEqual(
+        parseFloat(userCalculation.dragForce),
+        result.dragForce,
+      ),
+    };
+
+    setFieldResults(validationMap);
+
+    const correctCount = Object.values(validationMap).filter(
+      (f) => f === true,
+    ).length;
+    setCorrect(correctCount);
+  }
+
+  return <SafeAreaView style={styles.container}></SafeAreaView>;
 }
 
 const styles = StyleSheet.create({
