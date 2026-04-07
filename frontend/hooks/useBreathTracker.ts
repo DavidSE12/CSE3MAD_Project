@@ -2,7 +2,7 @@ import { Accelerometer } from "expo-sensors";
 import { useEffect, useRef, useState } from "react";
 
 // low-pass filter
-const EMA_ALPHA = 0.05;
+const EMA_ALPHA = 0.15;
 
 // min of seconds between counted breaths
 const MIN_BREATH_INTERVAL = 1500; // (ms) = 1.5s
@@ -15,6 +15,8 @@ const MOTION_THRESHOLD = 0.002;
 
 // n.o recent breath intervals used to compute bpm
 const BPM_WINDOW = 3;
+
+let countPeak = 0;
 
 export default function useBreathTracker() {
   // raw accelerometer
@@ -65,7 +67,8 @@ export default function useBreathTracker() {
       Math.abs(rawSlope) > MOTION_THRESHOLD;
 
     if (isPeak) {
-      console.log("is peak");
+      console.log(countPeak, "is peak");
+      countPeak++;
 
       const now = Date.now();
 
