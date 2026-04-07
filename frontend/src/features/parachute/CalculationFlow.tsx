@@ -130,7 +130,10 @@ export default function CalculationFlow() {
 
         <Button
           title="Submit & Check your answers"
-          onPress={() => setStep("RESULT")}
+          onPress={() => {
+            validate();
+            setStep("RESULT");
+          }}
         />
       </SafeAreaView>
     );
@@ -190,7 +193,47 @@ export default function CalculationFlow() {
     setCorrect(correctCount);
   }
 
-  return <SafeAreaView style={styles.container}></SafeAreaView>;
+  if (step === "RESULT") {
+    const correctValues = result();
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.header}>Score: {correct} / 4</Text>
+
+        <View style={styles.summaryBox}>
+          <Text>
+            Velocity: {userCalculation.velocity} (Correct:{" "}
+            {correctValues.velocity.toFixed(2)})
+          </Text>
+          <Text>
+            Acceleration: {userCalculation.acceleration} (Correct:{" "}
+            {correctValues.acceleration.toFixed(2)})
+          </Text>
+          <Text>
+            Net Force: {userCalculation.velocity} (Correct:{" "}
+            {correctValues.netForce.toFixed(2)})
+          </Text>
+          <Text>
+            Drag Force: {userCalculation.velocity} (Correct:{" "}
+            {correctValues.dragForce.toFixed(2)})
+          </Text>
+        </View>
+
+        {/* for debugging  */}
+        <Button
+          title="Try Again"
+          onPress={() => {
+            setFieldResults({
+              velocity: null,
+              acceleration: null,
+              netForce: null,
+              dragForce: null,
+            });
+            setStep("INPUT");
+          }}
+        />
+      </SafeAreaView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
