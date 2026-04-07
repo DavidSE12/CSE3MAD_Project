@@ -2,12 +2,12 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useTheme } from "@react-navigation/native";
 import { Text } from "react-native";
 
-import CalculateScreen from "@/src/features/parachute/calculateScreen";
+import Activity from "../activity/[id]/index";
 
 const Tab = createBottomTabNavigator();
 
 function HomeScreen() {
-  return <CalculateScreen />;
+  return <Activity />;
 }
 
 // Placeholder screens for other tabs (you can create these later)

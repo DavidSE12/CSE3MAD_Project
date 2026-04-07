@@ -1,7 +1,7 @@
 // import Instruction from "instruction";
-import { router } from "expo-router";
+import VideoRecorder from "@/src/components/Video/VideoRecorder";
+import Instruction from "@/src/instruction";
 import { Button, StyleSheet, View } from "react-native";
-
 const instructionData = {
   instruction:
     "Measure the voltage across the resistor using a multimeter and record the value. Ensure the circuit is powered before taking the reading.",
@@ -29,7 +29,7 @@ export default function HomeScreen() {
         diagramImage={instructionData.diagramImage}
         formulas={instructionData.formulas}
       />
-      <Button title="Record" onPress={() => router.push("/recordVideo")} />
+      <Button title="Record" onPress={() => <VideoRecorder />} />
     </View>
   );
 }
