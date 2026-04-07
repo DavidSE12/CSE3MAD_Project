@@ -1,6 +1,7 @@
-import Instruction from "@/components/Instruction";
-import { router } from "expo-router";
-import { Button, StyleSheet, View } from "react-native";
+import ActivityCard from "@/src/components/ActivityCard";
+import TeamInfoCard from "@/src/components/TeamInfoCard";
+import Header from "@/src/components/header";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 interface Activity {
   id: string;
@@ -38,7 +39,7 @@ const renderChallengeCards = (cards: ChallengeCard[] = []) => {
           cards.map((card) => (
             <View key={card.id} style={styles.challengeCard}>
               <Text style={styles.cardPlaceholder}>
-                Challenge Card{'\n'}(ID: {card.id})
+                Challenge Card{"\n"}(ID: {card.id})
               </Text>
             </View>
           ))
@@ -73,11 +74,11 @@ const renderActivities = (activities: Activity[] = []) => {
             <ActivityCard
               key={activity.id}
               id={activity.id}
-              activityName={activity.title || 'Activity'}
-              description={activity.description || 'No description'}
+              activityName={activity.title || "Activity"}
+              description={activity.description || "No description"}
               onPress={() => {
                 // Handle activity card press - navigate or show details
-                console.log('Activity pressed:', activity.id);
+                console.log("Activity pressed:", activity.id);
               }}
             />
           ))
@@ -98,53 +99,60 @@ export default function HomeScreen() {
   // Sample activities data (replace with real data)
   const activities: Activity[] = [
     {
-      id: '1',
-      title: 'Parachute Drop Challenge',
-      description: 'Design and test parachutes to reduce landing speed and impact force. Teams iterate designs to achieve the slowest, safest landing.',
-      timestamp: '2024-04-05',
+      id: "1",
+      title: "Parachute Drop Challenge",
+      description:
+        "Design and test parachutes to reduce landing speed and impact force. Teams iterate designs to achieve the slowest, safest landing.",
+      timestamp: "2024-04-05",
     },
     {
-      id: '2',
-      title: 'Sound Pollution Hunter',
-      description: 'Measure and compare sound levels from different classroom activities. Map loud and quiet zones to understand sound pollution.',
-      timestamp: '2024-04-06',
+      id: "2",
+      title: "Sound Pollution Hunter",
+      description:
+        "Measure and compare sound levels from different classroom activities. Map loud and quiet zones to understand sound pollution.",
+      timestamp: "2024-04-06",
     },
     {
-      id: '3',
-      title: 'Hand Fan Challenge',
-      description: 'Test how air movement affects flexible materials. Design different fans and observe how paper bends at various distances.',
-      timestamp: '2024-04-07',
+      id: "3",
+      title: "Hand Fan Challenge",
+      description:
+        "Test how air movement affects flexible materials. Design different fans and observe how paper bends at various distances.",
+      timestamp: "2024-04-07",
     },
     {
-      id: '4',
-      title: 'Earthquake-Resistant Structure',
-      description: 'Build structures that withstand vibration simulating earthquakes. Design anti-vibration layers to reduce phone movement.',
-      timestamp: '2024-04-08',
+      id: "4",
+      title: "Earthquake-Resistant Structure",
+      description:
+        "Build structures that withstand vibration simulating earthquakes. Design anti-vibration layers to reduce phone movement.",
+      timestamp: "2024-04-08",
     },
     {
-      id: '5',
-      title: 'Human Performance Lab',
-      description: 'Investigate body movement by measuring speed, smoothness, and coordination during controlled stretching activities using phone sensors.',
-      timestamp: '2024-04-09',
+      id: "5",
+      title: "Human Performance Lab",
+      description:
+        "Investigate body movement by measuring speed, smoothness, and coordination during controlled stretching activities using phone sensors.",
+      timestamp: "2024-04-09",
     },
     {
-      id: '6',
-      title: 'Reaction Board Challenge',
-      description: 'Measure reaction time, coordination, and improvement through digital and physical challenges. Test with dominant and non-dominant hands.',
-      timestamp: '2024-04-10',
+      id: "6",
+      title: "Reaction Board Challenge",
+      description:
+        "Measure reaction time, coordination, and improvement through digital and physical challenges. Test with dominant and non-dominant hands.",
+      timestamp: "2024-04-10",
     },
     {
-      id: '7',
-      title: 'Breathing Pace Trainer',
-      description: 'Analyze breathing patterns at rest and after exercise. Place phone on chest to record breathing before and after physical activities.',
-      timestamp: '2024-04-11',
+      id: "7",
+      title: "Breathing Pace Trainer",
+      description:
+        "Analyze breathing patterns at rest and after exercise. Place phone on chest to record breathing before and after physical activities.",
+      timestamp: "2024-04-11",
     },
   ];
 
   return (
     <View style={styles.container}>
       {/* Custom Header Component */}
-      <Header/>
+      <Header />
 
       <ScrollView
         style={styles.content}
@@ -154,7 +162,7 @@ export default function HomeScreen() {
         {/* Team Info Card with Dummy Data */}
         <TeamInfoCard
           teamName="Team Rockets"
-          members={['Alice', 'Bob', 'Charlie']}
+          members={["Alice", "Bob", "Charlie"]}
           grade="Year 7"
           points={450}
           rank={12}
@@ -169,6 +177,31 @@ export default function HomeScreen() {
     </View>
   );
 }
+const colors = {
+  primary: "#F7F9FC",
+  text: "#1F2937",
+  surface: "#FFFFFF",
+  textSecondary: "#6B7280",
+};
+
+const spacing = {
+  md: 12,
+  lg: 16,
+};
+
+const borderRadius = {
+  md: 12,
+};
+
+const shadows = {
+  light: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -186,7 +219,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
     marginLeft: spacing.lg,
     marginBottom: spacing.md,
@@ -206,7 +239,7 @@ const styles = StyleSheet.create({
   cardPlaceholder: {
     fontSize: 14,
     color: colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: spacing.lg,
   },
   emptyCard: {
@@ -216,13 +249,12 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     padding: spacing.md,
     marginRight: spacing.md,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     ...shadows.light,
   },
   emptyCardText: {
     fontSize: 14,
     color: colors.textSecondary,
   },
-
 });

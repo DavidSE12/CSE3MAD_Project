@@ -2,12 +2,13 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useTheme } from "@react-navigation/native";
 import { Text } from "react-native";
 
-import Instruction from "@/components/Instruction";
-import { Link } from "expo-router";
-import { View } from "react-native";
-import ParachuteScreen from "../parachute/calculate";
+import CalculateScreen from "@/src/features/parachute/calculateScreen";
 
 const Tab = createBottomTabNavigator();
+
+function HomeScreen() {
+  return <CalculateScreen />;
+}
 
 // Placeholder screens for other tabs (you can create these later)
 function LeaderboardScreen() {
@@ -23,15 +24,15 @@ function SettingScreen() {
 }
 
 export default function TabsLayout() {
-  const theme = useTheme();
+  const { colors } = useTheme();
 
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.text,
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.background,
           borderTopColor: colors.border,
           paddingBottom: 5,
           paddingTop: 5,
@@ -46,7 +47,9 @@ export default function TabsLayout() {
           title: "Home",
           headerTitle: "Home",
           tabBarLabel: "Home",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>🏠</Text>,
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 20, color }}>🏠</Text>
+          ),
         }}
       />
       <Tab.Screen
@@ -56,7 +59,9 @@ export default function TabsLayout() {
           title: "Leaderboard",
           headerTitle: "Leaderboard",
           tabBarLabel: "Leaderboard",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>📊</Text>,
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 20, color }}>📊</Text>
+          ),
         }}
       />
       <Tab.Screen
@@ -66,7 +71,9 @@ export default function TabsLayout() {
           title: "Team",
           headerTitle: "Team",
           tabBarLabel: "Team",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>👥</Text>,
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 20, color }}>👥</Text>
+          ),
         }}
       />
       <Tab.Screen
@@ -76,7 +83,9 @@ export default function TabsLayout() {
           title: "Settings",
           headerTitle: "Settings",
           tabBarLabel: "Setting",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>⚙️</Text>,
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 20, color }}>⚙️</Text>
+          ),
         }}
       />
     </Tab.Navigator>
