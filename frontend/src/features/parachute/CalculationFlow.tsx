@@ -13,10 +13,10 @@ export default function CalculationFlow() {
   const [step, setStep] = useState("INPUT");
 
   const [userCalculation, setUserCalculation] = useState({
-    velocity: Number,
-    acceleration: Number,
-    netForce: Number,
-    dragForce: Number,
+    velocity: "",
+    acceleration: "",
+    netForce: "",
+    dragForce: "",
   });
   const [isCorrect, setIsCorrect] = useState(false);
 
@@ -25,8 +25,8 @@ export default function CalculationFlow() {
     return (
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
         <View style={styles.container}>
-          <Text>Enter Experiment Parameters</Text>
-          <Text>
+          <Text style={styles.header}>Step 1: Enter Experiment Parameters</Text>
+          <Text style={styles.text}>
             Based on your experiment set up, please enter the following
             parameters:{" "}
           </Text>
@@ -59,6 +59,69 @@ export default function CalculationFlow() {
     );
   }
 
+  // Step 2: Calculate
+  if (step === "CALCULATE") {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.header}>Step 2: Calculate</Text>
+        <Text style={styles.text}>
+          Please calculate these units and enter your answers. Click on
+          Instruction to view the Formulas
+        </Text>
+        <SafeAreaView style={styles.summaryBox}>
+          <Text>
+            Mass: {input.mass}kg | Dist: {input.distance}m | Time: {input.time}s
+          </Text>
+        </SafeAreaView>
+
+        <Text style={styles.header}>Velocity (m/s)</Text>
+        <TextInput
+          placeholder="v = "
+          style={styles.input}
+          onChangeText={(t) =>
+            setUserCalculation({ ...userCalculation, velocity: t })
+          }
+          keyboardType="numeric"
+        />
+
+        <Text style={styles.header}>Acceleration (m/s²)</Text>
+        <TextInput
+          placeholder="a = "
+          style={styles.input}
+          onChangeText={(t) =>
+            setUserCalculation({ ...userCalculation, acceleration: t })
+          }
+          keyboardType="numeric"
+        />
+
+        <Text style={styles.header}>Net Force (N)</Text>
+        <TextInput
+          placeholder=""
+          style={styles.input}
+          onChangeText={(t) =>
+            setUserCalculation({ ...userCalculation, netForce: t })
+          }
+          keyboardType="numeric"
+        />
+
+        <Text style={styles.header}>Drag Force (N)</Text>
+        <TextInput
+          placeholder=""
+          style={styles.input}
+          onChangeText={(t) =>
+            setUserCalculation({ ...userCalculation, dragForce: t })
+          }
+          keyboardType="numeric"
+        />
+
+        <Button
+          title="Submit & Check your answers"
+          onPress={() => setStep("RESULT")}
+        />
+      </SafeAreaView>
+    );
+  }
+
   return null;
 }
 
@@ -80,4 +143,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   label: {},
+  text: {},
+  header: {},
+  summaryBox: {},
 });
