@@ -1,5 +1,5 @@
 import ActivityCard from "@/src/components/ActivityCard";
-import Header from "@/src/components/header";
+import Header from "@/src/components/Header";
 import TeamInfoCard from "@/src/components/TeamInfoCard";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 

@@ -3,6 +3,8 @@ import { useVideoPlayer, VideoView } from "expo-video";
 import { useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -112,7 +114,7 @@ export default function BaseVideoPreview({
   }));
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <GestureDetector gesture={composedGesture}>
         <Animated.View style={[{ flex: 1 }, animatedStyle]}>
           <VideoView
@@ -138,14 +140,13 @@ export default function BaseVideoPreview({
         <Button title="Discard & Retake" onPress={onRetake} />
         <Button title="Proceed" onPress={onProceed} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     backgroundColor: "#1a1a1a",
   },
   fullPreview: {
