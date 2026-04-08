@@ -2,13 +2,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useTheme } from "@react-navigation/native";
 import { Text } from "react-native";
 
-import Activity from "../activity/[id]/index";
-
+import HomeScreen from "./index";
 const Tab = createBottomTabNavigator();
-
-function HomeScreen() {
-  return <Activity />;
-}
 
 // Placeholder screens for other tabs (you can create these later)
 function LeaderboardScreen() {
