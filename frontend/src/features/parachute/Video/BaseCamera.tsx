@@ -8,17 +8,17 @@ import * as ImagePicker from "expo-image-picker";
 import { useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-interface CameraModuleProps {
+interface BaseCameraProps {
   onVideoCaptured: (uri: string) => void;
   onReadyChange: (isReady: boolean) => void;
   isCameraReady: boolean;
 }
 
-export default function CameraModule({
+export default function BaseCamera({
   onVideoCaptured,
   onReadyChange,
   isCameraReady,
-}: CameraModuleProps) {
+}: BaseCameraProps) {
   // Camera Facing State
   const [facing, setFacing] = useState<CameraType>("back");
   const [isRecording, setIsRecording] = useState(false);

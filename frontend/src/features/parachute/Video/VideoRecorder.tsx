@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import CameraModule from "./CameraModule";
-import VideoPreview from "./VideoPreview";
+import BaseCamera from "./BaseCamera";
+import BaseVideoPreview from "./BaseVideoPreview";
 
 export default function VideoRecorder() {
   const [video, setVideo] = useState<string | null>(null);
@@ -10,7 +10,7 @@ export default function VideoRecorder() {
   // if theres a record, show preview
   if (video) {
     return (
-      <VideoPreview
+      <BaseVideoPreview
         videoUri={video}
         onProceed={() => console.log("Proceeded successfully")}
         onRetake={() => setVideo(null)}
@@ -21,7 +21,7 @@ export default function VideoRecorder() {
   // otherwise, show camera screen
   return (
     <View style={styles.container}>
-      <CameraModule
+      <BaseCamera
         onVideoCaptured={(uri) => setVideo(uri)}
         onReadyChange={() => setIsCameraReady(true)}
         isCameraReady={isCameraReady}

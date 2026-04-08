@@ -1,30 +1,48 @@
 import { useEvent } from "expo"; //?
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useState } from "react";
-import { Button, StyleSheet, View} from "react-native";
-import SpeedButton from "./SpeedButton";
-import { GestureDetector, Gesture} from 'react-native-gesture-handler';
+import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withSpring,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
-
-interface VideoPreviewProps {
+interface BaseVideoPreviewProps {
   videoUri: string;
   onRetake: () => void;
   onProceed: () => void;
 }
+
+interface SpeedButtonProps {
+  speed: number;
+  onChange: (speed: number) => void;
+}
+
 const speedRates = [0.25, 0.5, 0.75, 1.0];
 
+export function SpeedButton({ speed, onChange }: SpeedButtonProps) {
+  const [isPressed, setIsPressed] = useState(false);
 
-export default function VideoPreview({
+  return (
+    <TouchableOpacity
+      style={[styles.speedButton, isPressed && styles.speedButtonActive]}
+      onPress={() => onChange(speed)}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
+      activeOpacity={0.7}
+    >
+      <Text style={styles.speedText}>{speed}x</Text>
+    </TouchableOpacity>
+  );
+}
+
+export default function BaseVideoPreview({
   videoUri,
   onRetake,
   onProceed,
-}: VideoPreviewProps) {
-
+}: BaseVideoPreviewProps) {
   const [currentSpeed, setCurrentSpeed] = useState(1.0);
   // Setup Video Player
   const player = useVideoPlayer(videoUri, (player) => {
@@ -53,28 +71,24 @@ export default function VideoPreview({
   const savedTranslateX = useSharedValue(0);
   const savedTranslateY = useSharedValue(0);
 
-
-
-
   const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => {
       scale.value = savedScale.value * e.scale;
     })
     .onEnd(() => {
-        // Allow zooming up to 10x (remove limit if you want unlimited)
-        if (scale.value < 3) {
-          scale.value = withSpring(1);
-          translateX.value = withSpring(0);
-          translateY.value = withSpring(0);
-        }
-        if (scale.value > 12) {
-          scale.value = withSpring(12);
-        }
-        savedScale.value = scale.value;
-    })
+      // Allow zooming up to 10x (remove limit if you want unlimited)
+      if (scale.value < 3) {
+        scale.value = withSpring(1);
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+      }
+      if (scale.value > 12) {
+        scale.value = withSpring(12);
+      }
+      savedScale.value = scale.value;
+    });
 
-
- // Pan gesture for moving zoomed video
+  // Pan gesture for moving zoomed video
   const panGesture = Gesture.Pan()
     .onUpdate((e) => {
       translateX.value = savedTranslateX.value + e.translationX;
@@ -86,10 +100,7 @@ export default function VideoPreview({
     });
 
   // Combine gestures
-  const composedGesture = Gesture.Simultaneous(
-    pinchGesture,
-    panGesture,
-  );
+  const composedGesture = Gesture.Simultaneous(pinchGesture, panGesture);
 
   // Animated style
   const animatedStyle = useAnimatedStyle(() => ({
@@ -100,17 +111,16 @@ export default function VideoPreview({
     ],
   }));
 
-
   return (
     <View style={styles.container}>
-      <GestureDetector gesture = {composedGesture}>
+      <GestureDetector gesture={composedGesture}>
         <Animated.View style={[{ flex: 1 }, animatedStyle]}>
           <VideoView
-        style={styles.fullPreview}
-        player={player}
-        fullscreenOptions={{ enable: false }}
-        allowsPictureInPicture={false}
-      />
+            style={styles.fullPreview}
+            player={player}
+            fullscreenOptions={{ enable: false }}
+            allowsPictureInPicture={false}
+          />
         </Animated.View>
       </GestureDetector>
 
@@ -160,5 +170,24 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "rgba(255,255,255,0.1)",
     gap: 10,
+  },
+  speedButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.3)",
+    minWidth: 50,
+    alignItems: "center",
+  },
+  speedButtonActive: {
+    backgroundColor: "rgba(100,200,255,0.6)",
+    borderColor: "rgba(100,200,255,1)",
+  },
+  speedText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 14,
   },
 });
