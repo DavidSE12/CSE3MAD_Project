@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {useRouter} from "expo-router";
 
 import Animated, {
   useAnimatedStyle,
@@ -26,7 +27,6 @@ const speedRates = [0.25, 0.5, 0.75, 1.0];
 
 export function SpeedButton({ speed, onChange }: SpeedButtonProps) {
   const [isPressed, setIsPressed] = useState(false);
-
   return (
     <TouchableOpacity
       style={[styles.speedButton, isPressed && styles.speedButtonActive]}
@@ -113,6 +113,9 @@ export default function BaseVideoPreview({
     ],
   }));
 
+
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.container}>
       <GestureDetector gesture={composedGesture}>
@@ -138,7 +141,7 @@ export default function BaseVideoPreview({
 
       <View style={styles.previewControls}>
         <Button title="Discard & Retake" onPress={onRetake} />
-        <Button title="Proceed" onPress={onProceed} />
+        <Button title="Proceed" onPress={ () => router.push(`./CalculationScreen`)} />
       </View>
     </SafeAreaView>
   );

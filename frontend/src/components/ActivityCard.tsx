@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import { colors, spacing, borderRadius, shadows } from '../theme';
+import useRouter from 'expo-router';
 
 export type ActivityLevel = 'easy' | 'medium' | 'hard';
+
 
 interface ActivityCardProps {
   id: string;

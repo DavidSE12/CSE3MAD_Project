@@ -2,12 +2,16 @@ import ActivityCard from "@/src/components/ActivityCard";
 import Header from "@/src/components/Header";
 import TeamInfoCard from "@/src/components/TeamInfoCard";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {useRouter} from 'expo-router';
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 interface Activity {
   id: string;
   title?: string;
   description?: string;
   timestamp?: string;
+  nextScreen?: string;
   // Add more fields as needed
 }
 
@@ -24,6 +28,10 @@ interface ChallengeCard {
  * @param cards - Array of challenge card data
  */
 const renderChallengeCards = (cards: ChallengeCard[] = []) => {
+  if (cards.length === 0) {
+    return null;
+  }
+
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>Active Challenges</Text>
@@ -35,19 +43,13 @@ const renderChallengeCards = (cards: ChallengeCard[] = []) => {
         decelerationRate="fast"
         style={styles.horizontalScroll}
       >
-        {cards.length > 0 ? (
-          cards.map((card) => (
-            <View key={card.id} style={styles.challengeCard}>
-              <Text style={styles.cardPlaceholder}>
-                Challenge Card{"\n"}(ID: {card.id})
-              </Text>
-            </View>
-          ))
-        ) : (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyCardText}>No challenges yet</Text>
+        {cards.map((card) => (
+          <View key={card.id} style={styles.challengeCard}>
+            <Text style={styles.cardPlaceholder}>
+              Challenge Card{"\n"}(ID: {card.id})
+            </Text>
           </View>
-        )}
+        ))}
       </ScrollView>
     </View>
   );
@@ -58,6 +60,7 @@ const renderChallengeCards = (cards: ChallengeCard[] = []) => {
  * @param activities - Array of activity card data
  */
 const renderActivities = (activities: Activity[] = []) => {
+  const router = useRouter();
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>Activities List</Text>
@@ -78,7 +81,9 @@ const renderActivities = (activities: Activity[] = []) => {
               description={activity.description || "No description"}
               onPress={() => {
                 // Handle activity card press - navigate or show details
-                console.log("Activity pressed:", activity.id);
+                router.navigate(`./screens/${activity.nextScreen}`)
+                console.log("Activity pressed:", activity.nextScreen);
+                
               }}
             />
           ))
@@ -104,6 +109,7 @@ export default function HomeScreen() {
       description:
         "Design and test parachutes to reduce landing speed and impact force. Teams iterate designs to achieve the slowest, safest landing.",
       timestamp: "2024-04-05",
+      nextScreen: "parachute/InstructionScreen"
     },
     {
       id: "2",
@@ -111,6 +117,7 @@ export default function HomeScreen() {
       description:
         "Measure and compare sound levels from different classroom activities. Map loud and quiet zones to understand sound pollution.",
       timestamp: "2024-04-06",
+      nextScreen: "soundPollutionHunter/Instruction"
     },
     {
       id: "3",
@@ -118,6 +125,7 @@ export default function HomeScreen() {
       description:
         "Test how air movement affects flexible materials. Design different fans and observe how paper bends at various distances.",
       timestamp: "2024-04-07",
+      nextScreen: "handFanChallenge/Instruction"
     },
     {
       id: "4",
@@ -125,6 +133,7 @@ export default function HomeScreen() {
       description:
         "Build structures that withstand vibration simulating earthquakes. Design anti-vibration layers to reduce phone movement.",
       timestamp: "2024-04-08",
+      nextScreen: "earthquake/Instruction"
     },
     {
       id: "5",
@@ -132,6 +141,7 @@ export default function HomeScreen() {
       description:
         "Investigate body movement by measuring speed, smoothness, and coordination during controlled stretching activities using phone sensors.",
       timestamp: "2024-04-09",
+      nextScreen: "humanPerformanceLab/Instruction"
     },
     {
       id: "6",
@@ -139,6 +149,7 @@ export default function HomeScreen() {
       description:
         "Measure reaction time, coordination, and improvement through digital and physical challenges. Test with dominant and non-dominant hands.",
       timestamp: "2024-04-10",
+      nextScreen: "reactionBoardChallenge/Instruction"
     },
     {
       id: "7",
@@ -146,11 +157,12 @@ export default function HomeScreen() {
       description:
         "Analyze breathing patterns at rest and after exercise. Place phone on chest to record breathing before and after physical activities.",
       timestamp: "2024-04-11",
+      nextScreen: "breathingPaceTrainer/Instruction"
     },
   ];
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Custom Header Component */}
       <Header />
 
@@ -168,13 +180,15 @@ export default function HomeScreen() {
           rank={12}
         />
 
+        {/* Activities List Section */}
+        {renderActivities(activities)}
+
         {/* Challenge Cards Section */}
         {renderChallengeCards(challengeCards)}
 
-        {/* Activities List Section */}
-        {renderActivities(activities)}
+
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 const colors = {

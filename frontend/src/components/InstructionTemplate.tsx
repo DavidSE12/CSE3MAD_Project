@@ -1,18 +1,36 @@
+import { Button } from "@react-navigation/elements";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useRouter } from 'expo-router';
 
 interface InstructionProps {
   instruction: string;
-  tools: string[];
-  diagramImage: string; // url
-  formulas: string[];
+  title?: string;
+  subtitle?: string;
+  emoji?: string;
+  tools?: string[];
+  diagramImage?: string; // url
+  diagramTitle?: string;
+  legendItems?: Array<{ color: string; label: string }>;
+  formulas?: string[];
+  screen?: string;
 }
 
 export default function Instruction({
   instruction,
+  title = "STEM Activity",
+  subtitle = "Science & Engineering",
+  emoji = "🔬",
   tools,
   diagramImage,
+  diagramTitle = "Diagram",
+  legendItems,
   formulas,
+  screen
+
 }: InstructionProps) {
+  
+  const router = useRouter();
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       {/* ── Header ── */}
@@ -20,36 +38,60 @@ export default function Instruction({
         <View style={styles.headerBadge}>
           <Text style={styles.headerBadgeText}>STEM LAB</Text>
         </View>
-        <Text style={styles.headerEmoji}>🪂</Text>
-        <Text style={styles.headerTitle}>Parachute Experiment</Text>
-        <Text style={styles.headerSub}>Physics — Forces & Motion</Text>
+        <Text style={styles.headerEmoji}>{emoji}</Text>
+        <Text style={styles.headerTitle}>{title}</Text>
+        <Text style={styles.headerSub}>{subtitle}</Text>
       </View>
 
       {/* ── Tools ── */}
       <SectionCard accent="#4C9BE8" icon="🧰" title="Tools Required">
-        <Text style={styles.bodyText}>{tools}</Text>
+        <View>
+          {tools && tools.length > 0 ? (
+            tools.map((tool, index) => (
+              <View key={index} style={styles.listItem}>
+                <Text style={styles.listBullet}>•</Text>
+                <Text style={styles.listItemText}>{tool}</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.bodyText}>No tools required</Text>
+          )}
+        </View>
       </SectionCard>
 
       {/* ── Diagram ── */}
-      <SectionCard accent="#7C5CBF" icon="📐" title="Force Diagram">
-        <View style={styles.diagramWrapper}>
-          <Image
-            source={{ uri: diagramImage }}
-            style={styles.diagram}
-            resizeMode="contain"
-            accessibilityLabel="Parachute force diagram"
-          />
-          <View style={styles.legendRow}>
-            <LegendBadge color="#E84C7C" label="Drag Force ↑" />
-            <LegendBadge color="#4C9BE8" label="Weight ↓" />
+      {diagramImage && (
+        <SectionCard accent="#7C5CBF" icon="📐" title={diagramTitle}>
+          <View style={styles.diagramWrapper}>
+            <Image
+              source={{ uri: diagramImage }}
+              style={styles.diagram}
+              resizeMode="contain"
+              accessibilityLabel={diagramTitle}
+            />
+            {legendItems && legendItems.length > 0 && (
+              <View style={styles.legendRow}>
+                {legendItems.map((item, index) => (
+                  <LegendBadge key={index} color={item.color} label={item.label} />
+                ))}
+              </View>
+            )}
           </View>
-        </View>
-      </SectionCard>
+        </SectionCard>
+      )}
 
       {/* ── Formula ── */}
       <SectionCard accent="#E87C4C" icon="🔢" title="Key Formulas">
         <View style={styles.formulaBox}>
-          <Text style={styles.formulaText}>{formulas}</Text>
+          {formulas && formulas.length > 0 ? (
+            formulas.map((formula, index) => (
+              <Text key={index} style={styles.formulaItem}>
+                {formula}
+              </Text>
+            ))
+          ) : (
+            <Text style={styles.bodyText}>No formulas available</Text>
+          )}
         </View>
       </SectionCard>
 
@@ -57,6 +99,10 @@ export default function Instruction({
       <SectionCard accent="#4CBF7C" icon="📋" title="Instructions">
         <Text style={styles.bodyText}>{instruction}</Text>
       </SectionCard>
+
+      <Button onPress={() => router.push(screen as any)}>
+        Start Experiment
+      </Button>
 
       {/* ── Safety Note ── */}
       <View style={styles.safetyBanner}>
@@ -245,6 +291,33 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
     color: "#1A2F5A",
     lineHeight: 30,
+  },
+  formulaItem: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1A2F5A",
+    lineHeight: 24,
+    marginBottom: 8,
+  },
+
+  // ── List Items
+  listItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 10,
+    gap: 12,
+  },
+  listBullet: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#4C9BE8",
+    marginTop: 2,
+  },
+  listItemText: {
+    fontSize: 14,
+    color: "#2D3748",
+    lineHeight: 20,
+    flex: 1,
   },
 
   // ── Safety

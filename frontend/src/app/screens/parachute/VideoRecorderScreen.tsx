@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BaseCamera from "../components/BaseCamera";
-import BaseVideoPreview from "../components/BaseVideoPreview";
+import BaseCamera from "@/src/features/parachute/components/BaseCamera";
+import BaseVideoPreview from "@/src/features/parachute/components/BaseVideoPreview";
 
 export default function VideoRecorderScreen() {
   const [video, setVideo] = useState<string | null>(null);
