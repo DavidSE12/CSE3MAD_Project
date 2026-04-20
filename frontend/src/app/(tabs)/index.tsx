@@ -1,169 +1,160 @@
-import ActivityCard from "@/src/components/ActivityCard";
-import Header from "@/src/components/header";
-import TeamInfoCard from "@/src/components/TeamInfoCard";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import {useRouter} from 'expo-router';
-import { SafeAreaView } from "react-native-safe-area-context";
+import React from 'react';
+import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Header from '@/src/components/header';
+import TeamInfoCard from '@/src/components/TeamInfoCard';
 
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Activity {
   id: string;
-  title?: string;
-  description?: string;
-  timestamp?: string;
-  nextScreen?: string;
-  // Add more fields as needed
+  title: string;
+  description: string;
+  nextScreen: string;
+  icon: string;          // MaterialCommunityIcons name
+  iconColor: string;     // icon tint colour
+  iconBg: string;        // icon background circle colour
 }
 
-interface ChallengeCard {
-  id: string;
-  title?: string;
-  description?: string;
-  timestamp?: string;
-  // Add more fields as needed
+// ─── Activity data ────────────────────────────────────────────────────────────
+
+// First 4 → Engineering Challenges section
+// Last 3  → Health & Medical Science section
+const activities: Activity[] = [
+  {
+    id: '1',
+    title: 'Parachute Drop',
+    description: 'Design and test parachutes to reduce landing speed and impact force.',
+    nextScreen: 'parachute/InstructionScreen',
+    icon: 'parachute',
+    iconColor: '#3977fd',
+    iconBg: '#DBEAFE',
+  },
+  {
+    id: '2',
+    title: 'Sound Pollution Hunter',
+    description: 'Measure and compare sound levels. Map loud and quiet zones.',
+    nextScreen: 'soundPollutionHunter/Instruction',
+    icon: 'volume-high',
+    iconColor: '#7C3AED',
+    iconBg: '#EDE9FE',
+  },
+  {
+    id: '3',
+    title: 'Hand Fan Challenge',
+    description: 'Test how air movement affects flexible materials with fan designs.',
+    nextScreen: 'handFanChallenge/Instruction',
+    icon: 'fan',
+    iconColor: '#0891B2',
+    iconBg: '#CFFAFE',
+  },
+  {
+    id: '4',
+    title: 'Earthquake Structure',
+    description: 'Build structures that withstand vibrations simulating earthquakes.',
+    nextScreen: 'earthquake/Instruction',
+    icon: 'home-alert',
+    iconColor: '#D97706',
+    iconBg: '#FEF3C7',
+  },
+  {
+    id: '5',
+    title: 'Performance Lab',
+    description: 'Measure speed, smoothness, and coordination during stretching.',
+    nextScreen: 'humanPerformanceLab/Instruction',
+    icon: 'run-fast',
+    iconColor: '#059669',
+    iconBg: '#D1FAE5',
+  },
+  {
+    id: '6',
+    title: 'Reaction Board',
+    description: 'Test reaction time and coordination with dominant and non-dominant hands.',
+    nextScreen: 'reactionBoardChallenge/Instruction',
+    icon: 'lightning-bolt',
+    iconColor: '#DC2626',
+    iconBg: '#FEE2E2',
+  },
+  {
+    id: '7',
+    title: 'Breathing Pace Trainer',
+    description: 'Analyse breathing patterns at rest and after exercise using phone sensors. Place phone on chest to record before and after physical activities.',
+    nextScreen: 'breathingPaceTrainer/Instruction',
+    icon: 'lungs',
+    iconColor: '#0284C7',
+    iconBg: '#E0F2FE',
+  },
+];
+
+// ─── Grid card component ──────────────────────────────────────────────────────
+
+// Height of a standard square grid card — used to size the tall card (activity 7)
+const CARD_H = 160;
+const GAP    = 12;
+
+interface GridCardProps {
+  activity: Activity;
 }
 
 /**
- * Renders Challenge Cards in a horizontal scrollable view
- * @param cards - Array of challenge card data
+ * GridCard — a pressable card used in the activity grid sections.
+ * Shows a coloured icon circle, title, and truncated description.
  */
-const renderChallengeCards = (cards: ChallengeCard[] = []) => {
-  if (cards.length === 0) {
-    return null;
-  }
-
-  return (
-    <View style={styles.sectionContainer}>
-      <Text style={styles.sectionTitle}>Active Challenges</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        scrollEventThrottle={16}
-        snapToInterval={280}
-        decelerationRate="fast"
-        style={styles.horizontalScroll}
-      >
-        {cards.map((card) => (
-          <View key={card.id} style={styles.challengeCard}>
-            <Text style={styles.cardPlaceholder}>
-              Challenge Card{"\n"}(ID: {card.id})
-            </Text>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
-  );
-};
-
-/**
- * Renders Activities List in a horizontal scrollable view
- * @param activities - Array of activity card data
- */
-const renderActivities = (activities: Activity[] = []) => {
+const GridCard: React.FC<GridCardProps> = ({ activity }) => {
   const router = useRouter();
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text style={styles.sectionTitle}>Activities List</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        scrollEventThrottle={16}
-        snapToInterval={300}
-        decelerationRate="fast"
-        style={styles.horizontalScroll}
-      >
-        {activities.length > 0 ? (
-          activities.map((activity) => (
-            <ActivityCard
-              key={activity.id}
-              id={activity.id}
-              activityName={activity.title || "Activity"}
-              description={activity.description || "No description"}
-              onPress={() => {
-                // Handle activity card press - navigate or show details
-                router.navigate(`./screens/${activity.nextScreen}`)
-                console.log("Activity pressed:", activity.nextScreen);
-                
-              }}
-            />
-          ))
-        ) : (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyCardText}>No activities yet</Text>
-          </View>
-        )}
-      </ScrollView>
-    </View>
+    <Pressable
+      style={({ pressed }) => [
+        gs.card,
+        { height: CARD_H },
+        pressed && { opacity: 0.75 },
+      ]}
+      onPress={() => router.navigate(`./screens/${activity.nextScreen}`)}
+    >
+      {/* Coloured icon circle */}
+      <View style={[gs.iconCircle, { backgroundColor: activity.iconBg }]}>
+        <MaterialCommunityIcons
+          name={activity.icon as any}
+          size={24}
+          color={activity.iconColor}
+        />
+      </View>
+
+      {/* Activity title */}
+      <Text style={gs.cardTitle} numberOfLines={2}>{activity.title}</Text>
+
+      {/* Truncated description */}
+      <Text style={gs.cardDesc} numberOfLines={2}>
+        {activity.description}
+      </Text>
+
+      {/* Bottom arrow */}
+      <View style={gs.arrowRow}>
+        <MaterialCommunityIcons name="arrow-right" size={16} color="#9CA3AF" />
+      </View>
+    </Pressable>
   );
 };
 
-export default function HomeScreen() {
-  // Sample challenge cards data (replace with real data)
-  const challengeCards: ChallengeCard[] = [];
+// ─── Screen ───────────────────────────────────────────────────────────────────
 
-  // Sample activities data (replace with real data)
-  const activities: Activity[] = [
-    {
-      id: "1",
-      title: "Parachute Drop Challenge",
-      description:
-        "Design and test parachutes to reduce landing speed and impact force. Teams iterate designs to achieve the slowest, safest landing.",
-      timestamp: "2024-04-05",
-      nextScreen: "parachute/InstructionScreen"
-    },
-    {
-      id: "2",
-      title: "Sound Pollution Hunter",
-      description:
-        "Measure and compare sound levels from different classroom activities. Map loud and quiet zones to understand sound pollution.",
-      timestamp: "2024-04-06",
-      nextScreen: "soundPollutionHunter/Instruction"
-    },
-    {
-      id: "3",
-      title: "Hand Fan Challenge",
-      description:
-        "Test how air movement affects flexible materials. Design different fans and observe how paper bends at various distances.",
-      timestamp: "2024-04-07",
-      nextScreen: "handFanChallenge/Instruction"
-    },
-    {
-      id: "4",
-      title: "Earthquake-Resistant Structure",
-      description:
-        "Build structures that withstand vibration simulating earthquakes. Design anti-vibration layers to reduce phone movement.",
-      timestamp: "2024-04-08",
-      nextScreen: "earthquake/Instruction"
-    },
-    {
-      id: "5",
-      title: "Human Performance Lab",
-      description:
-        "Investigate body movement by measuring speed, smoothness, and coordination during controlled stretching activities using phone sensors.",
-      timestamp: "2024-04-09",
-      nextScreen: "humanPerformanceLab/Instruction"
-    },
-    {
-      id: "6",
-      title: "Reaction Board Challenge",
-      description:
-        "Measure reaction time, coordination, and improvement through digital and physical challenges. Test with dominant and non-dominant hands.",
-      timestamp: "2024-04-10",
-      nextScreen: "reactionBoardChallenge/Instruction"
-    },
-    {
-      id: "7",
-      title: "Breathing Pace Trainer",
-      description:
-        "Analyze breathing patterns at rest and after exercise. Place phone on chest to record breathing before and after physical activities.",
-      timestamp: "2024-04-11",
-      nextScreen: "breathingPaceTrainer/Instruction"
-    },
-  ];
+/**
+ * HomeScreen — main landing screen with two activity sections:
+ *   1. Engineering Challenges  (activities 1–4) — 2 × 2 grid
+ *   2. Health & Medical Science (activities 5–7) — 2-col row + 1 tall full-width card
+ */
+export default function HomeScreen() {
+  // Split the flat activities array into the two sections
+  const engineering = activities.slice(0, 4); // ids 1-4
+  const health      = activities.slice(4, 6); // ids 5-6 (side by side)
+  const healthTall  = activities[6];           // id 7  (full-width tall card)
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Custom Header Component */}
+      {/* Custom header with app branding */}
       <Header />
 
       <ScrollView
@@ -171,104 +162,135 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
-        {/* Team Info Card with Dummy Data */}
+        {/* Team summary card */}
         <TeamInfoCard
           teamName="Team Rockets"
-          members={["Alice", "Bob", "Charlie"]}
+          members={['Alice', 'Bob', 'Charlie']}
           grade="Year 7"
           points={450}
           rank={12}
         />
 
-        {/* Activities List Section */}
-        {renderActivities(activities)}
+        {/* ── Section 1: Engineering Challenges ── */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Engineering Challenges</Text>
 
-        {/* Challenge Cards Section */}
-        {renderChallengeCards(challengeCards)}
+          {/* Row 1: activities 1 & 2 */}
+          <View style={styles.gridRow}>
+            <GridCard activity={engineering[0]} />
+            <GridCard activity={engineering[1]} />
+          </View>
 
+          {/* Row 2: activities 3 & 4 */}
+          <View style={styles.gridRow}>
+            <GridCard activity={engineering[2]} />
+            <GridCard activity={engineering[3]} />
+          </View>
+        </View>
+
+        {/* ── Section 2: Health & Medical Science ── */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Health & Medical Science</Text>
+
+          {/* Row 1: activities 5 & 6 side by side */}
+          <View style={styles.gridRow}>
+            {/* {health.map((a) => <GridCard key={a.id} activity={a} />)} */}
+            <GridCard activity={health[0]} />
+            <GridCard activity={health[1]} />
+          </View>
+
+          {/* Row 2: activity 7 full-width */}
+          <GridCard activity={healthTall} />
+        </View>
 
       </ScrollView>
     </SafeAreaView>
   );
 }
-const colors = {
-  primary: "#F7F9FC",
-  text: "#1F2937",
-  surface: "#FFFFFF",
-  textSecondary: "#6B7280",
-};
 
-const spacing = {
-  md: 12,
-  lg: 16,
-};
+// ─── Grid card styles ─────────────────────────────────────────────────────────
 
-const borderRadius = {
-  md: 12,
-};
-
-const shadows = {
-  light: {
-    shadowColor: "#000",
+const gs = StyleSheet.create({
+  // Card container — flex:1 so both cards in a row split the width equally
+  card: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 14,
+    justifyContent: 'flex-start',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    elevation: 3,
   },
-};
+
+  // Rounded icon background circle
+  iconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+
+  // Card title — bold, allows 2 lines
+  cardTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 6,
+    lineHeight: 18,
+  },
+
+  // Card description — muted, small
+  cardDesc: {
+    fontSize: 11,
+    color: '#6B7280',
+    lineHeight: 15,
+    flex: 1,
+  },
+
+  // Arrow pinned to the bottom-right
+  arrowRow: {
+    alignItems: 'flex-end',
+    marginTop: 6,
+  },
+});
+
+// ─── Screen styles ────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
+    backgroundColor: '#F8F4EF',
   },
   content: {
     flex: 1,
   },
   contentContainer: {
-    paddingBottom: spacing.lg,
+    paddingBottom: 24,
+    paddingHorizontal: 16,
   },
-  sectionContainer: {
-    marginVertical: spacing.md,
+
+  // Section wrapper with bottom margin
+  section: {
+    marginTop: 24,
   },
+
+  // Bold section heading
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: colors.text,
-    marginLeft: spacing.lg,
-    marginBottom: spacing.md,
+    fontWeight: '800',
+    color: '#1F2937',
+    marginBottom: 12,
   },
-  horizontalScroll: {
-    paddingHorizontal: spacing.md,
-  },
-  challengeCard: {
-    width: 280,
-    height: 180,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginRight: spacing.md,
-    ...shadows.light,
-  },
-  cardPlaceholder: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: "center",
-    marginTop: spacing.lg,
-  },
-  emptyCard: {
-    width: 280,
-    height: 180,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginRight: spacing.md,
-    justifyContent: "center",
-    alignItems: "center",
-    ...shadows.light,
-  },
-  emptyCardText: {
-    fontSize: 14,
-    color: colors.textSecondary,
+
+  // Two-card row with a gap between cards
+  gridRow: {
+    flexDirection: 'row',
+    gap: GAP,
+    marginBottom: GAP,
   },
 });
