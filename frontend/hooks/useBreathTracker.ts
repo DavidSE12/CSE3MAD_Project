@@ -108,6 +108,7 @@ export default function useBreathTracker() {
 
   const start = () => {
     if (isRecording) return;
+    reset();
     Accelerometer.setUpdateInterval(UPDATE_INTERVAL);
     // on mount - subscribe
     subscription.current = Accelerometer.addListener(handleData);
@@ -115,9 +116,6 @@ export default function useBreathTracker() {
   };
 
   const reset = () => {
-    subscription.current?.remove();
-    subscription.current = null;
-
     // reset displayed data
     setData({ x: 0, y: 0, z: 0 });
     setBpm(0);
@@ -135,8 +133,10 @@ export default function useBreathTracker() {
 
   // cleanup when unmount
   const stop = () => {
-    // refresh everything
-    reset();
+    setIsRecording(false);
+    subscription.current?.remove();
+    subscription.current = null;
+    setData({ x: 0, y: 0, z: 0 });
   };
 
   return { bpm, x, y, z, start, stop, isRecording };
