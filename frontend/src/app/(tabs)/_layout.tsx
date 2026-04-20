@@ -3,12 +3,13 @@ import { useTheme } from "@react-navigation/native";
 import { Text } from "react-native";
 
 import HomeScreen from "./index";
+import Leaderboard from "./leaderboard";
 const Tab = createBottomTabNavigator();
 
 // Placeholder screens for other tabs (you can create these later)
-function LeaderboardScreen() {
-  return <Text>Leaderboard</Text>;
-}
+// function LeaderboardScreen() {
+//   return Leaderboard;
+// }
 
 function TeamScreen() {
   return <Text>Team</Text>;
@@ -49,7 +50,7 @@ export default function TabsLayout() {
       />
       <Tab.Screen
         name="leaderboard"
-        component={LeaderboardScreen}
+        component={Leaderboard}
         options={{
           title: "Leaderboard",
           headerTitle: "Leaderboard",
