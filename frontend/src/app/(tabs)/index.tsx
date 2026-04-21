@@ -1,10 +1,10 @@
-import React from 'react';
-import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import Header from '@/src/components/header';
-import TeamInfoCard from '@/src/components/TeamInfoCard';
+import Header from "@/src/components/header";
+import TeamInfoCard from "@/src/components/TeamInfoCard";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -13,9 +13,9 @@ interface Activity {
   title: string;
   description: string;
   nextScreen: string;
-  icon: string;          // MaterialCommunityIcons name
-  iconColor: string;     // icon tint colour
-  iconBg: string;        // icon background circle colour
+  icon: string; // MaterialCommunityIcons name
+  iconColor: string; // icon tint colour
+  iconBg: string; // icon background circle colour
 }
 
 // ─── Activity data ────────────────────────────────────────────────────────────
@@ -24,67 +24,73 @@ interface Activity {
 // Last 3  → Health & Medical Science section
 const activities: Activity[] = [
   {
-    id: '1',
-    title: 'Parachute Drop',
-    description: 'Design and test parachutes to reduce landing speed and impact force.',
-    nextScreen: 'parachute/InstructionScreen',
-    icon: 'parachute',
-    iconColor: '#3977fd',
-    iconBg: '#DBEAFE',
+    id: "1",
+    title: "Parachute Drop",
+    description:
+      "Design and test parachutes to reduce landing speed and impact force.",
+    nextScreen: "parachute/InstructionScreen",
+    icon: "parachute",
+    iconColor: "#3977fd",
+    iconBg: "#DBEAFE",
   },
   {
-    id: '2',
-    title: 'Sound Pollution Hunter',
-    description: 'Measure and compare sound levels. Map loud and quiet zones.',
-    nextScreen: 'soundPollutionHunter/Instruction',
-    icon: 'volume-high',
-    iconColor: '#7C3AED',
-    iconBg: '#EDE9FE',
+    id: "2",
+    title: "Sound Pollution Hunter",
+    description: "Measure and compare sound levels. Map loud and quiet zones.",
+    nextScreen: "soundPollutionHunter/InstructionScreen",
+    icon: "volume-high",
+    iconColor: "#7C3AED",
+    iconBg: "#EDE9FE",
   },
   {
-    id: '3',
-    title: 'Hand Fan Challenge',
-    description: 'Test how air movement affects flexible materials with fan designs.',
-    nextScreen: 'handFanChallenge/Instruction',
-    icon: 'fan',
-    iconColor: '#0891B2',
-    iconBg: '#CFFAFE',
+    id: "3",
+    title: "Hand Fan Challenge",
+    description:
+      "Test how air movement affects flexible materials with fan designs.",
+    nextScreen: "handFanChallenge/InstructionScreen",
+    icon: "fan",
+    iconColor: "#0891B2",
+    iconBg: "#CFFAFE",
   },
   {
-    id: '4',
-    title: 'Earthquake Structure',
-    description: 'Build structures that withstand vibrations simulating earthquakes.',
-    nextScreen: 'earthquake/Instruction',
-    icon: 'home-alert',
-    iconColor: '#D97706',
-    iconBg: '#FEF3C7',
+    id: "4",
+    title: "Earthquake Structure",
+    description:
+      "Build structures that withstand vibrations simulating earthquakes.",
+    nextScreen: "earthquake/InstructionScreen",
+    icon: "home-alert",
+    iconColor: "#D97706",
+    iconBg: "#FEF3C7",
   },
   {
-    id: '5',
-    title: 'Performance Lab',
-    description: 'Measure speed, smoothness, and coordination during stretching.',
-    nextScreen: 'humanPerformanceLab/Instruction',
-    icon: 'run-fast',
-    iconColor: '#059669',
-    iconBg: '#D1FAE5',
+    id: "5",
+    title: "Performance Lab",
+    description:
+      "Measure speed, smoothness, and coordination during stretching.",
+    nextScreen: "humanPerformanceLab/InstructionScreen",
+    icon: "run-fast",
+    iconColor: "#059669",
+    iconBg: "#D1FAE5",
   },
   {
-    id: '6',
-    title: 'Reaction Board',
-    description: 'Test reaction time and coordination with dominant and non-dominant hands.',
-    nextScreen: 'reactionBoardChallenge/Instruction',
-    icon: 'lightning-bolt',
-    iconColor: '#DC2626',
-    iconBg: '#FEE2E2',
+    id: "6",
+    title: "Reaction Board",
+    description:
+      "Test reaction time and coordination with dominant and non-dominant hands.",
+    nextScreen: "reactionBoardChallenge/InstructionScreen",
+    icon: "lightning-bolt",
+    iconColor: "#DC2626",
+    iconBg: "#FEE2E2",
   },
   {
-    id: '7',
-    title: 'Breathing Pace Trainer',
-    description: 'Analyse breathing patterns at rest and after exercise using phone sensors. Place phone on chest to record before and after physical activities.',
-    nextScreen: 'breathingPaceTrainer/Instruction',
-    icon: 'lungs',
-    iconColor: '#0284C7',
-    iconBg: '#E0F2FE',
+    id: "7",
+    title: "Breathing Pace Trainer",
+    description:
+      "Analyse breathing patterns at rest and after exercise using phone sensors. Place phone on chest to record before and after physical activities.",
+    nextScreen: "breathingPaceTrainer/InstructionScreen",
+    icon: "lungs",
+    iconColor: "#0284C7",
+    iconBg: "#E0F2FE",
   },
 ];
 
@@ -92,7 +98,7 @@ const activities: Activity[] = [
 
 // Height of a standard square grid card — used to size the tall card (activity 7)
 const CARD_H = 160;
-const GAP    = 12;
+const GAP = 12;
 
 interface GridCardProps {
   activity: Activity;
@@ -124,7 +130,9 @@ const GridCard: React.FC<GridCardProps> = ({ activity }) => {
       </View>
 
       {/* Activity title */}
-      <Text style={gs.cardTitle} numberOfLines={2}>{activity.title}</Text>
+      <Text style={gs.cardTitle} numberOfLines={2}>
+        {activity.title}
+      </Text>
 
       {/* Truncated description */}
       <Text style={gs.cardDesc} numberOfLines={2}>
@@ -149,8 +157,8 @@ const GridCard: React.FC<GridCardProps> = ({ activity }) => {
 export default function HomeScreen() {
   // Split the flat activities array into the two sections
   const engineering = activities.slice(0, 4); // ids 1-4
-  const health      = activities.slice(4, 6); // ids 5-6 (side by side)
-  const healthTall  = activities[6];           // id 7  (full-width tall card)
+  const health = activities.slice(4, 6); // ids 5-6 (side by side)
+  const healthTall = activities[6]; // id 7  (full-width tall card)
 
   return (
     <SafeAreaView style={styles.container}>
@@ -165,7 +173,7 @@ export default function HomeScreen() {
         {/* Team summary card */}
         <TeamInfoCard
           teamName="Team Rockets"
-          members={['Alice', 'Bob', 'Charlie']}
+          members={["Alice", "Bob", "Charlie"]}
           grade="Year 7"
           points={450}
           rank={12}
@@ -202,7 +210,6 @@ export default function HomeScreen() {
           {/* Row 2: activity 7 full-width */}
           <GridCard activity={healthTall} />
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -214,11 +221,11 @@ const gs = StyleSheet.create({
   // Card container — flex:1 so both cards in a row split the width equally
   card: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 14,
-    justifyContent: 'flex-start',
-    shadowColor: '#000',
+    justifyContent: "flex-start",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.07,
     shadowRadius: 8,
@@ -230,16 +237,16 @@ const gs = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 10,
   },
 
   // Card title — bold, allows 2 lines
   cardTitle: {
     fontSize: 13,
-    fontWeight: '700',
-    color: '#1F2937',
+    fontWeight: "700",
+    color: "#1F2937",
     marginBottom: 6,
     lineHeight: 18,
   },
@@ -247,14 +254,14 @@ const gs = StyleSheet.create({
   // Card description — muted, small
   cardDesc: {
     fontSize: 11,
-    color: '#6B7280',
+    color: "#6B7280",
     lineHeight: 15,
     flex: 1,
   },
 
   // Arrow pinned to the bottom-right
   arrowRow: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     marginTop: 6,
   },
 });
@@ -264,7 +271,7 @@ const gs = StyleSheet.create({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F4EF',
+    backgroundColor: "#F8F4EF",
   },
   content: {
     flex: 1,
@@ -282,14 +289,14 @@ const styles = StyleSheet.create({
   // Bold section heading
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '800',
-    color: '#1F2937',
+    fontWeight: "800",
+    color: "#1F2937",
     marginBottom: 12,
   },
 
   // Two-card row with a gap between cards
   gridRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: GAP,
     marginBottom: GAP,
   },
