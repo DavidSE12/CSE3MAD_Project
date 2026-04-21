@@ -6,10 +6,7 @@ const instructionData = {
   instruction:
     "Analyse breathing patterns at rest and after exercise. Place the phone gently on your chest and record your breathing at rest. Perform light exercise (jog one minute on the spot or do 100 star jumps). Record your breathing again and compare the results.",
 
-  tools: [
-    "Mobile phone with STEMM Lab app",
-    "Flat surface or mat",
-  ],
+  tools: ["Mobile phone with STEMM Lab app", "Flat surface or mat"],
 
   diagramImage:
     "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png",
@@ -21,7 +18,11 @@ const instructionData = {
     { color: "#E84C7C", label: "After Exercise" },
   ],
 
-  formulas: ["Breathing at Rest: ~6-12 breaths/min", "After Exercise: 20-30+ breaths/min", "Respiratory Rate increases with activity"],
+  formulas: [
+    "Breathing at Rest: ~6-12 breaths/min",
+    "After Exercise: 20-30+ breaths/min",
+    "Respiratory Rate increases with activity",
+  ],
 };
 
 export default function InstructionScreen() {
@@ -37,7 +38,7 @@ export default function InstructionScreen() {
         diagramTitle={instructionData.diagramTitle}
         legendItems={instructionData.legendItems}
         formulas={instructionData.formulas}
-        screen='./VideoRecorderScreen'
+        screen="./BreathTrackerScreen"
       />
     </SafeAreaView>
   );
