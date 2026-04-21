@@ -1,13 +1,15 @@
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAjDFOQ-cWS_JKIcePjA38RkbxZUMTEktI",
-  authDomain: "stem-app-ed0a7.firebaseapp.com",
-  projectId: "stem-app-ed0a7",
-  storageBucket: "stem-app-ed0a7.firebasestorage.app",
-  messagingSenderId: "323291467476",
-  appId: "1:323291467476:web:17aeaad81a0b3a07ebf541",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
 export default app;
+
+console.log(process.env.EXPO_PUBLIC_FIREBASE_API_KEY);
