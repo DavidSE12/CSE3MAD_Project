@@ -1,6 +1,7 @@
 import { parachuteCalculate } from "@/lib/parachute";
 import { useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // for rendering the corresponding stage
@@ -12,6 +13,7 @@ export default function CalculationFlow() {
 
   // stage of flow, starting with entering parameters
   const [step, setStep] = useState("INPUT");
+  const [error, setError] = useState("");
 
   const [userCalculation, setUserCalculation] = useState({
     velocity: "",
@@ -34,41 +36,76 @@ export default function CalculationFlow() {
   // correct answers
   const [correct, setCorrect] = useState(0);
 
+  // validate input - not empty
+  const isExperimentInputValid = () => {
+    return input.time !== "" && input.distance !== "" && input.mass !== "";
+  };
+
+  const isCaculationInputValid = () => {
+    return (
+      userCalculation.acceleration !== "" &&
+      userCalculation.dragForce !== "" &&
+      userCalculation.netForce !== "" &&
+      userCalculation.velocity !== ""
+    );
+  };
+
   // INPUT step: data entry
   if (step === "INPUT") {
     return (
       <SafeAreaView style={styles.safeArea} edges={["top"]}>
-        <View style={styles.container}>
-          <Text style={styles.header}>Step 1: Enter Experiment Parameters</Text>
-          <Text style={styles.text}>
-            Based on your experiment set up, please enter the following
-            parameters:{" "}
-          </Text>
-          <Text style={styles.label}>Time (s)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="t = "
-            onChangeText={(t) => setInput({ ...input, time: t })}
-            keyboardType="numeric"
-          />
-          <Text style={styles.label}>Mass (kg)</Text>
+        <ScrollView>
+          <View style={styles.container}>
+            <Text style={styles.header}>
+              Step 1: Enter Experiment Parameters
+            </Text>
+            <Text style={styles.text}>
+              Based on your experiment set up, please enter the following
+              parameters:{" "}
+            </Text>
+            <Text style={styles.label}>Time (s)</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={(t) => {
+                setInput({ ...input, time: t });
+                setError("");
+              }}
+              keyboardType="numeric"
+            />
+            <Text style={styles.label}>Mass (kg)</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="m ="
-            onChangeText={(t) => setInput({ ...input, mass: t })}
-            keyboardType="numeric"
-          />
-          <Text style={styles.label}>Distance (m)</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={(t) => {
+                setInput({ ...input, mass: t });
+                setError("");
+              }}
+              keyboardType="numeric"
+            />
+            <Text style={styles.label}>Distance (m)</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="d ="
-            onChangeText={(t) => setInput({ ...input, distance: t })}
-            keyboardType="numeric"
-          />
-          <Button title="Next step" onPress={() => setStep("CALCULATE")} />
-        </View>
+            <TextInput
+              style={styles.input}
+              onChangeText={(t) => {
+                setInput({ ...input, distance: t });
+                setError("");
+              }}
+              keyboardType="numeric"
+            />
+            {error && <Text style={styles.error}>{error}</Text>}
+            <Button
+              title="Next step"
+              onPress={() => {
+                if (!isExperimentInputValid()) {
+                  setError("Please fill in all the fields!");
+                  return;
+                }
+                setStep("CALCULATE");
+                setError("");
+              }}
+            />
+          </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -76,65 +113,72 @@ export default function CalculationFlow() {
   // Step 2: Calculate
   if (step === "CALCULATE") {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.header}>Step 2: Calculate</Text>
-        <Text style={styles.text}>
-          Please calculate these units and enter your answers. Click on
-          Instruction to view the Formulas
-        </Text>
-        <SafeAreaView style={styles.summaryBox}>
-          <Text>
-            Mass: {input.mass}kg | Dist: {input.distance}m | Time: {input.time}s
+      <SafeAreaView style={styles.container} edges={["top"]}>
+        <ScrollView>
+          <Text style={styles.header}>Step 2: Calculate</Text>
+          <Text style={styles.text}>
+            Please calculate these units and enter your answers. Click on
+            Instruction to view the Formulas
           </Text>
-        </SafeAreaView>
+          <SafeAreaView style={styles.summaryBox}>
+            <Text>
+              Mass: {input.mass}kg | Dist: {input.distance}m | Time:{" "}
+              {input.time}s
+            </Text>
+          </SafeAreaView>
 
-        <Text style={styles.header}>Velocity (m/s)</Text>
-        <TextInput
-          placeholder="v = "
-          style={styles.input}
-          onChangeText={(t) =>
-            setUserCalculation({ ...userCalculation, velocity: t })
-          }
-          keyboardType="numeric"
-        />
+          <Text style={styles.header}>Velocity (m/s)</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={(t) => {
+              setUserCalculation({ ...userCalculation, velocity: t });
+              setError("");
+            }}
+            keyboardType="numeric"
+          />
 
-        <Text style={styles.header}>Acceleration (m/s²)</Text>
-        <TextInput
-          placeholder="a = "
-          style={styles.input}
-          onChangeText={(t) =>
-            setUserCalculation({ ...userCalculation, acceleration: t })
-          }
-          keyboardType="numeric"
-        />
+          <Text style={styles.header}>Acceleration (m/s²)</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={(t) => {
+              setUserCalculation({ ...userCalculation, acceleration: t });
+              setError("");
+            }}
+            keyboardType="numeric"
+          />
 
-        <Text style={styles.header}>Net Force (N)</Text>
-        <TextInput
-          placeholder=""
-          style={styles.input}
-          onChangeText={(t) =>
-            setUserCalculation({ ...userCalculation, netForce: t })
-          }
-          keyboardType="numeric"
-        />
+          <Text style={styles.header}>Net Force (N)</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={(t) => {
+              setUserCalculation({ ...userCalculation, netForce: t });
+              setError("");
+            }}
+            keyboardType="numeric"
+          />
 
-        <Text style={styles.header}>Drag Force (N)</Text>
-        <TextInput
-          placeholder=""
-          style={styles.input}
-          onChangeText={(t) =>
-            setUserCalculation({ ...userCalculation, dragForce: t })
-          }
-          keyboardType="numeric"
-        />
-
-        <Button
-          title="Submit & Check your answers"
-          onPress={() => {
-            validate();
-            setStep("RESULT");
-          }}
-        />
+          <Text style={styles.header}>Drag Force (N)</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={(t) => {
+              setUserCalculation({ ...userCalculation, dragForce: t });
+              setError("");
+            }}
+            keyboardType="numeric"
+          />
+          {error && <Text style={styles.error}>{error}</Text>}
+          <Button
+            title="Submit & Check your answers"
+            onPress={() => {
+              if (!isCaculationInputValid()) {
+                setError("Please fill in all the calculations!");
+                return;
+              }
+              validate();
+              setStep("RESULT");
+            }}
+          />
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -197,40 +241,49 @@ export default function CalculationFlow() {
     const correctValues = result();
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.header}>Score: {correct} / 4</Text>
+        <ScrollView>
+          <Text style={styles.header}>Score: {correct} / 4</Text>
 
-        <View style={styles.summaryBox}>
-          <Text>
-            Velocity: {userCalculation.velocity} (Correct:{" "}
-            {correctValues.velocity.toFixed(2)})
-          </Text>
-          <Text>
-            Acceleration: {userCalculation.acceleration} (Correct:{" "}
-            {correctValues.acceleration.toFixed(2)})
-          </Text>
-          <Text>
-            Net Force: {userCalculation.velocity} (Correct:{" "}
-            {correctValues.netForce.toFixed(2)})
-          </Text>
-          <Text>
-            Drag Force: {userCalculation.velocity} (Correct:{" "}
-            {correctValues.dragForce.toFixed(2)})
-          </Text>
-        </View>
+          <View style={styles.summaryBox}>
+            <Text>
+              Velocity: {userCalculation.velocity} (Correct:{" "}
+              {correctValues.velocity.toFixed(2)})
+            </Text>
+            <Text>
+              Acceleration: {userCalculation.acceleration} (Correct:{" "}
+              {correctValues.acceleration.toFixed(2)})
+            </Text>
+            <Text>
+              Net Force: {userCalculation.netForce} (Correct:{" "}
+              {correctValues.netForce.toFixed(2)})
+            </Text>
+            <Text>
+              Drag Force: {userCalculation.dragForce} (Correct:{" "}
+              {correctValues.dragForce.toFixed(2)})
+            </Text>
+          </View>
 
-        {/* for debugging  */}
-        <Button
-          title="Try Again"
-          onPress={() => {
-            setFieldResults({
-              velocity: null,
-              acceleration: null,
-              netForce: null,
-              dragForce: null,
-            });
-            setStep("INPUT");
-          }}
-        />
+          {/* for debugging  */}
+          <Button
+            title="Try Again"
+            onPress={() => {
+              setFieldResults({
+                velocity: null,
+                acceleration: null,
+                netForce: null,
+                dragForce: null,
+              });
+              setUserCalculation({
+                velocity: "",
+                acceleration: "",
+                netForce: "",
+                dragForce: "",
+              });
+              setInput({ time: "", mass: "", distance: "" });
+              setStep("INPUT");
+            }}
+          />
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -257,4 +310,7 @@ const styles = StyleSheet.create({
   text: {},
   header: {},
   summaryBox: {},
+  error: {
+    color: "red",
+  },
 });
