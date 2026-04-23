@@ -45,6 +45,10 @@ export default function BaseVideoPreview({
   onProceed,
 }: BaseVideoPreviewProps) {
   const [currentSpeed, setCurrentSpeed] = useState(1.0);
+
+  // // for timestamp
+  // const [timestamp, setTimestamp] = useState(0);
+
   // Setup Video Player
   const player = useVideoPlayer(videoUri, (player) => {
     player.loop = true;
@@ -59,6 +63,28 @@ export default function BaseVideoPreview({
     player.playbackRate = speed;
     setCurrentSpeed(speed);
   };
+
+  const togglePlayPause = () => {
+    if (player.playing) {
+      player.pause();
+    } else {
+      player.play();
+    }
+  };
+
+  // // timestamp
+  // const formatTime = (seconds: number) => {
+  //   const mins = Math.floor(seconds / 60);
+  //   const secs = Math.floor(seconds % 60);
+  //   return `${mins}:${secs.toString().padStart(2, "0")}`;
+  // };
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setTimestamp(player.currentTime);
+  //   }, 50); // update every 50ms
+  //   return () => clearInterval(interval);
+  // }, [player]);
 
   // Setup Zoom function
   // Zoom Value
@@ -133,6 +159,10 @@ export default function BaseVideoPreview({
         </Animated.View>
       </GestureDetector>
 
+      {/* <View style={styles.timestampContainer}>
+        <Text style={styles.timestampText}>{formatTime(timestamp ?? 0)}</Text>
+      </View> */}
+
       <View style={styles.speedButtonsContainer}>
         {speedRates.map((speed: number) => (
           <SpeedButton
@@ -142,6 +172,10 @@ export default function BaseVideoPreview({
           />
         ))}
       </View>
+
+      <TouchableOpacity onPress={togglePlayPause} style={styles.playPauseBtn}>
+        <Text style={styles.playPauseText}>{player.playing ? "⏸️" : "▶️"}</Text>
+      </TouchableOpacity>
 
       <View style={styles.previewControls}>
         <Button title="Discard & Retake" onPress={onRetake} />
@@ -197,5 +231,27 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: 14,
+  },
+  playPauseBtn: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  playPauseText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  timestampContainer: {
+    alignItems: "center",
+    paddingVertical: 6,
+    backgroundColor: "rgba(0,0,0,0.6)",
+  },
+  timestampText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+    letterSpacing: 1,
   },
 });
