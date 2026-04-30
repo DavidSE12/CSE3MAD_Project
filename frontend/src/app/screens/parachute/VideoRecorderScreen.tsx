@@ -1,0 +1,43 @@
+import BaseCamera from "@/src/features/parachute/components/BaseCamera";
+import BaseVideoPreview from "@/src/features/parachute/components/BaseVideoPreview";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+export default function VideoRecorderScreen() {
+  const [video, setVideo] = useState<string | null>(null);
+  const [isCameraReady, setIsCameraReady] = useState(false);
+  const router = useRouter();
+
+  // if theres a record, show preview
+  if (video) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <BaseVideoPreview
+          videoUri={video}
+          onProceed={() => {
+            setVideo(null);
+            router.push("./CalculationScreen");
+          }}
+          onRetake={() => setVideo(null)}
+        />
+      </SafeAreaView>
+    );
+  }
+
+  // otherwise, show camera screen
+  return (
+    <SafeAreaView style={styles.container}>
+      <BaseCamera
+        onVideoCaptured={(uri) => setVideo(uri)}
+        onReadyChange={() => setIsCameraReady(true)}
+        isCameraReady={isCameraReady}
+      />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+});
