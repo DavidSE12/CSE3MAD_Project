@@ -1,7 +1,14 @@
 import { useEvent } from "expo";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useState } from "react";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Button,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -45,9 +52,10 @@ export default function BaseVideoPreview({
   onProceed,
 }: BaseVideoPreviewProps) {
   const [currentSpeed, setCurrentSpeed] = useState(1.0);
-
-  // // for timestamp
-  // const [timestamp, setTimestamp] = useState(0);
+  // marked time to extract for calculation input
+  const [markedTime, setMarkedTime] = useState<number | null>(null);
+  // control modal display for proceeding and marking time
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Setup Video Player
   const player = useVideoPlayer(videoUri, (player) => {
@@ -71,20 +79,6 @@ export default function BaseVideoPreview({
       player.play();
     }
   };
-
-  // // timestamp
-  // const formatTime = (seconds: number) => {
-  //   const mins = Math.floor(seconds / 60);
-  //   const secs = Math.floor(seconds % 60);
-  //   return `${mins}:${secs.toString().padStart(2, "0")}`;
-  // };
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setTimestamp(player.currentTime);
-  //   }, 50); // update every 50ms
-  //   return () => clearInterval(interval);
-  // }, [player]);
 
   // Setup Zoom function
   // Zoom Value
@@ -138,7 +132,19 @@ export default function BaseVideoPreview({
     ],
   }));
 
+  const formatTime = (seconds: number) => {
+    return (Math.round(seconds * 100) / 100).toFixed(2);
+  };
+
+  const { currentTime } = useEvent(player, "timeUpdate", {
+    currentTime: 0,
+    currentLiveTimestamp: null,
+    currentOffsetFromLive: null,
+    bufferedPosition: 0,
+  });
+
   const handleProceed = () => {
+    setIsModalOpen(false);
     // pause video on unmount - moving to next screen
     try {
       player.pause();
@@ -146,23 +152,36 @@ export default function BaseVideoPreview({
     onProceed();
   };
 
+  const handleMarkTime = () => {
+    const t = player.currentTime;
+    setMarkedTime(t);
+    console.log(t);
+    player.pause();
+    setIsModalOpen(true);
+  };
+
+  const handleRemark = () => {
+    setIsModalOpen(false);
+    setMarkedTime(null);
+    player.play();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <GestureDetector gesture={composedGesture}>
-        <Animated.View style={[{ flex: 1 }, animatedStyle]}>
-          <VideoView
-            style={styles.fullPreview}
-            player={player}
-            fullscreenOptions={{ enable: false }}
-            allowsPictureInPicture={false}
-          />
-        </Animated.View>
-      </GestureDetector>
+      <View style={styles.videoWrapper}>
+        <GestureDetector gesture={composedGesture}>
+          <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+            <VideoView
+              style={styles.fullPreview}
+              player={player}
+              fullscreenOptions={{ enable: false }}
+              allowsPictureInPicture={false}
+            />
+          </Animated.View>
+        </GestureDetector>
+      </View>
 
-      {/* <View style={styles.timestampContainer}>
-        <Text style={styles.timestampText}>{formatTime(timestamp ?? 0)}</Text>
-      </View> */}
-
+      {/* speed buttons */}
       <View style={styles.speedButtonsContainer}>
         {speedRates.map((speed: number) => (
           <SpeedButton
@@ -173,14 +192,50 @@ export default function BaseVideoPreview({
         ))}
       </View>
 
-      <TouchableOpacity onPress={togglePlayPause} style={styles.playPauseBtn}>
-        <Text style={styles.playPauseText}>{player.playing ? "⏸️" : "▶️"}</Text>
-      </TouchableOpacity>
+      <View style={styles.controlsRow}>
+        <TouchableOpacity onPress={togglePlayPause} style={styles.playPauseBtn}>
+          <Text style={styles.playPauseText}>
+            {player.playing ? "⏸️" : "▶️"}
+          </Text>
+        </TouchableOpacity>
 
+        <TouchableOpacity onPress={handleMarkTime} style={styles.markBtn}>
+          <Text style={styles.markBtnText}>📍 Mark Time</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* bottom controls */}
       <View style={styles.previewControls}>
         <Button title="Discard & Retake" onPress={onRetake} />
-        <Button title="Proceed" onPress={handleProceed} />
       </View>
+
+      {/* mark time modal */}
+      <Modal
+        visible={isModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Time Marked</Text>
+            <Text style={styles.modalTime}>
+              {markedTime !== null ? `${formatTime(markedTime)}s` : "--"}
+            </Text>
+            <Text style={styles.modalSubtitle}>
+              Use this as your experiment time?
+            </Text>
+
+            <TouchableOpacity style={styles.proceedBtn} onPress={handleProceed}>
+              <Text style={styles.proceedBtnText}>✅ Use this time</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.remarkBtn} onPress={handleRemark}>
+              <Text style={styles.remarkBtnText}>🔄 Remark</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -243,15 +298,103 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
   },
-  timestampContainer: {
-    alignItems: "center",
-    paddingVertical: 6,
-    backgroundColor: "rgba(0,0,0,0.6)",
+  videoWrapper: {
+    flex: 1,
+    position: "relative",
   },
-  timestampText: {
+  liveTimestamp: {
+    position: "absolute",
+    top: 12,
+    left: 12,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+  },
+  liveTimestampText: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
     letterSpacing: 1,
+  },
+  controlsRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 16,
+    paddingVertical: 12,
+    backgroundColor: "rgba(0,0,0,0.8)",
+  },
+  markBtn: {
+    backgroundColor: "rgba(79,195,247,0.15)",
+    borderWidth: 1,
+    borderColor: "rgba(79,195,247,0.5)",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  markBtnText: {
+    color: "#4fc3f7",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
+  },
+  modalCard: {
+    backgroundColor: "#1e1e1e",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 32,
+    alignItems: "center",
+    gap: 12,
+  },
+  modalTitle: {
+    color: "rgba(255,255,255,0.5)",
+    fontSize: 14,
+    fontWeight: "500",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  modalTime: {
+    color: "#fff",
+    fontSize: 48,
+    fontWeight: "800",
+    letterSpacing: 2,
+  },
+  modalSubtitle: {
+    color: "rgba(255,255,255,0.4)",
+    fontSize: 13,
+    marginBottom: 8,
+  },
+  proceedBtn: {
+    width: "100%",
+    backgroundColor: "#4caf50",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  proceedBtnText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  remarkBtn: {
+    width: "100%",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  remarkBtnText: {
+    color: "rgba(255,255,255,0.7)",
+    fontWeight: "600",
+    fontSize: 15,
+  },
+  displayedSeconds: {
+    fontSize: 20,
+    color: "rgba(255,255,255,0.7)",
   },
 });
