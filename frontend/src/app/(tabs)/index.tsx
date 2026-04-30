@@ -1,9 +1,20 @@
 import Header from "@/src/components/header";
 import TeamInfoCard from "@/src/components/TeamInfoCard";
+import ChatBox from "@/src/components/ChatBox";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Dimensions,
+  Keyboard,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { getUserProfile, getTeam, getTeamMembers } from '../../services/firestore';
@@ -160,6 +171,8 @@ const GridCard: React.FC<GridCardProps> = ({ activity }) => {
  *   1. Engineering Challenges  (activities 1–4) — 2 × 2 grid
  *   2. Health & Medical Science (activities 5–7) — 2-col row + 1 tall full-width card
  */
+const CHAT_HEIGHT = Dimensions.get('window').height * 0.58;
+
 export default function HomeScreen() {
   const engineering = activities.slice(0, 4);
   const health = activities.slice(4, 6);
@@ -170,6 +183,49 @@ export default function HomeScreen() {
   const [teamId, setTeamId] = useState('');
   const [memberNames, setMemberNames] = useState<string[]>([]);
   const [grade, setGrade] = useState('');
+
+  const [chatOpen, setChatOpen] = useState(false);
+  const slideAnim = useRef(new Animated.Value(CHAT_HEIGHT)).current;
+  const keyboardAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
+      Animated.timing(keyboardAnim, {
+        toValue: e.endCoordinates.height,
+        duration: e.duration ?? 250,
+        useNativeDriver: false,
+      }).start();
+    });
+    const hideSub = Keyboard.addListener(hideEvent, (e) => {
+      Animated.timing(keyboardAnim, {
+        toValue: 0,
+        duration: e.duration ?? 250,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    return () => { showSub.remove(); hideSub.remove(); };
+  }, [keyboardAnim]);
+
+  const openChat = () => {
+    setChatOpen(true);
+    Animated.spring(slideAnim, {
+      toValue: 0,
+      useNativeDriver: true,
+      bounciness: 6,
+    }).start();
+  };
+
+  const closeChat = () => {
+    Animated.timing(slideAnim, {
+      toValue: CHAT_HEIGHT,
+      duration: 220,
+      useNativeDriver: true,
+    }).start(() => setChatOpen(false));
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -240,7 +296,6 @@ export default function HomeScreen() {
 
           {/* Row 1: activities 5 & 6 side by side */}
           <View style={styles.gridRow}>
-            {/* {health.map((a) => <GridCard key={a.id} activity={a} />)} */}
             <GridCard activity={health[0]} />
             <GridCard activity={health[1]} />
           </View>
@@ -249,6 +304,49 @@ export default function HomeScreen() {
           <GridCard activity={healthTall} />
         </View>
       </ScrollView>
+
+      {/* ── Floating chat bubble — hidden while chat is open (header has close button) ── */}
+      {!chatOpen && (
+        <Pressable
+          style={({ pressed }) => [styles.fab, pressed && { opacity: 0.85 }]}
+          onPress={openChat}
+        >
+          <MaterialCommunityIcons name="chat" size={24} color="#fff" />
+        </Pressable>
+      )}
+
+      {/* ── Slide-up chat panel ── */}
+      {/* Outer view lifts panel above keyboard (useNativeDriver:false required for layout props) */}
+      {/* Inner view handles the slide animation (useNativeDriver:true for transform) */}
+      {chatOpen && (
+        <Animated.View style={[styles.chatPanelOuter, { bottom: keyboardAnim }]}>
+        <Animated.View
+          style={[styles.chatPanel, { transform: [{ translateY: slideAnim }] }]}
+        >
+          {/* Panel header — Messenger-style */}
+          <View style={styles.chatHeader}>
+            <View style={styles.chatHeaderLeft}>
+              <View style={styles.chatAvatar}>
+                <Text style={styles.chatAvatarText}>AI</Text>
+              </View>
+              <View>
+                <Text style={styles.chatHeaderName}>STEM Tutor</Text>
+                <Text style={styles.chatHeaderSub}>Powered by GPT-4</Text>
+              </View>
+            </View>
+            <Pressable
+              onPress={closeChat}
+              style={({ pressed }) => [styles.closeBtn, pressed && { opacity: 0.6 }]}
+            >
+              <MaterialCommunityIcons name="chevron-down" size={22} color="#6B7280" />
+            </Pressable>
+          </View>
+
+          {/* Chat content */}
+          <ChatBox height={CHAT_HEIGHT - 56} />
+        </Animated.View>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 }
@@ -318,24 +416,100 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     paddingHorizontal: 16,
   },
-
-  // Section wrapper with bottom margin
   section: {
     marginTop: 24,
   },
-
-  // Bold section heading
   sectionTitle: {
     fontSize: 18,
     fontWeight: "800",
     color: "#1F2937",
     marginBottom: 12,
   },
-
-  // Two-card row with a gap between cards
   gridRow: {
     flexDirection: "row",
     gap: GAP,
     marginBottom: GAP,
+  },
+
+  // Floating action button
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#3977fd',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#3977fd',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
+    zIndex: 10,
+  },
+
+  // Outer wrapper — moves panel above keyboard (bottom is animated, no native driver)
+  chatPanelOuter: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 7,
+  },
+
+  // Slide-up chat panel
+  chatPanel: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 12,
+    overflow: 'hidden',
+  },
+
+  // Messenger-style panel header
+  chatHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  chatHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  chatAvatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#3977fd',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chatAvatarText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#fff',
+  },
+  chatHeaderName: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1F2937',
+  },
+  chatHeaderSub: {
+    fontSize: 11,
+    color: '#9CA3AF',
+  },
+  closeBtn: {
+    padding: 4,
   },
 });
