@@ -1,5 +1,6 @@
 import { parachuteCalculate } from "@/lib/parachute";
-import { useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,8 +9,27 @@ import { SafeAreaView } from "react-native-safe-area-context";
 type Step = "INPUT" | "CALCULATE" | "RESULT";
 
 export default function CalculationFlow() {
+  // read params markedTime to prefill
+  const { markedTime } = useLocalSearchParams<{
+    markedTime?: string | string[];
+  }>();
+  const markedTimeValue = Array.isArray(markedTime)
+    ? markedTime[0]
+    : markedTime;
+  useEffect(() => {
+    if (markedTime !== undefined) {
+      setInput((prev) => ({
+        ...prev,
+        time: markedTime.toString(),
+      }));
+    }
+  }, [markedTime]);
   // user input of experiment units
-  const [input, setInput] = useState({ mass: "", time: "", distance: "" });
+  const [input, setInput] = useState({
+    mass: "",
+    time: markedTimeValue ?? "",
+    distance: "",
+  });
 
   // stage of flow, starting with entering parameters
   const [step, setStep] = useState("INPUT");
@@ -38,7 +58,14 @@ export default function CalculationFlow() {
 
   // validate input - not empty
   const isExperimentInputValid = () => {
-    return input.time !== "" && input.distance !== "" && input.mass !== "";
+    return (
+      input.time !== "" &&
+      input.distance !== "" &&
+      input.mass !== "" &&
+      input.time !== "0" &&
+      input.distance !== "0" &&
+      input.mass !== "0"
+    );
   };
 
   const isCaculationInputValid = () => {
@@ -66,6 +93,7 @@ export default function CalculationFlow() {
             <Text style={styles.label}>Time (s)</Text>
             <TextInput
               style={styles.input}
+              value={input.time}
               onChangeText={(t) => {
                 setInput({ ...input, time: t });
                 setError("");
