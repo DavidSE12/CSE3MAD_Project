@@ -21,7 +21,7 @@ import Animated, {
 interface BaseVideoPreviewProps {
   videoUri: string;
   onRetake: () => void;
-  onProceed: () => void;
+  onProceed: (duration: number) => void;
 }
 
 interface SpeedButtonProps {
@@ -52,8 +52,9 @@ export default function BaseVideoPreview({
   onProceed,
 }: BaseVideoPreviewProps) {
   const [currentSpeed, setCurrentSpeed] = useState(1.0);
-  // marked time to extract for calculation input
-  const [markedTime, setMarkedTime] = useState<number | null>(null);
+  // marked times to extract for calculation input - length of 2
+  const [markedTimes, setMarkedTimes] = useState(new Array(2).fill(0));
+  const [duration, setDuration] = useState<number | null>(null);
   // control modal display for proceeding and marking time
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -143,26 +144,48 @@ export default function BaseVideoPreview({
     bufferedPosition: 0,
   });
 
+  const getDuration = () => {
+    setDuration(
+      markedTimes.reduce((x: number, y: number) => Math.abs(x - y), 0),
+    );
+  };
+
   const handleProceed = () => {
     setIsModalOpen(false);
     // pause video on unmount - moving to next screen
     try {
       player.pause();
     } catch {}
-    onProceed();
+    onProceed(duration !== null ? duration : 0);
   };
 
+  // remove the first item and append the latest marked time to the end
   const handleMarkTime = () => {
     const t = player.currentTime;
-    setMarkedTime(t);
-    console.log(t);
-    player.pause();
-    setIsModalOpen(true);
+    setMarkedTimes((prev) => {
+      // remove the first item by slicing
+      const remainingTime = prev.slice(1);
+      const next = [...remainingTime, t];
+
+      const validCount = next.filter((v) => v > 0).length;
+
+      // if theres already 2 items in marked time, show modal
+      if (validCount === 2) {
+        const d = Math.abs(next[0] - next[1]);
+        setDuration(d);
+        setIsModalOpen(true);
+        player.pause();
+        console.log(duration);
+      }
+      return next;
+    });
+    // print
+    markedTimes.map((t) => console.log(t));
   };
 
   const handleRemark = () => {
     setIsModalOpen(false);
-    setMarkedTime(null);
+    setMarkedTimes(new Array(2).fill(0));
     player.play();
   };
 
@@ -220,7 +243,7 @@ export default function BaseVideoPreview({
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Time Marked</Text>
             <Text style={styles.modalTime}>
-              {markedTime !== null ? `${formatTime(markedTime)}s` : "--"}
+              {duration !== null ? `${formatTime(duration)}s` : "--"}
             </Text>
             <Text style={styles.modalSubtitle}>
               Use this as your experiment time?
