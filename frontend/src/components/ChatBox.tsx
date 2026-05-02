@@ -7,8 +7,10 @@ import {
   FlatList,
   StyleSheet,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Markdown from '@ronradtke/react-native-markdown-display';
 
 // Update to your FastAPI server address.
 // Android emulator → use 10.0.2.2; iOS simulator → use localhost; physical device → LAN IP.
@@ -86,9 +88,11 @@ export default function ChatBox({ height }: ChatBoxProps) {
           </View>
         )}
         <View style={[s.bubbleInner, isUser ? s.userInner : s.botInner]}>
-          <Text style={[s.bubbleText, isUser ? s.userText : s.botText]}>
-            {item.text}
-          </Text>
+          {isUser ? (
+            <Text style={[s.bubbleText, s.userText]}>{item.text}</Text>
+          ) : (
+            <Markdown style={markdownStyles}>{item.text}</Markdown>
+          )}
         </View>
       </View>
     );
@@ -98,7 +102,10 @@ export default function ChatBox({ height }: ChatBoxProps) {
     <View style={[s.container, height != null ? { height, flex: 0 } : { flex: 1 }]}>
       {messages.length === 0 ? (
         <View style={s.emptyState}>
-          <Text style={s.emptyEmoji}>🤖</Text>
+          <Image
+                source={require('../../assets/images/robot.png')}  // path from components/ up to assets/
+                style={s.emptyEmoji}                         // reuse the same style for sizing
+          />
           <Text style={s.emptyTitle}>Ask me anything!</Text>
           <Text style={s.emptyHint}>
             I can explain STEM concepts, activity instructions, and more.
@@ -277,8 +284,8 @@ const s = StyleSheet.create({
     paddingHorizontal: 40,
   },
   emptyEmoji: {
-    fontSize: 56,
-    marginBottom: 16,
+  width: 64,   // adjust to match the size the emoji was
+  height: 64,
   },
   emptyTitle: {
     fontSize: 22,
@@ -293,3 +300,47 @@ const s = StyleSheet.create({
     lineHeight: 20,
   },
 });
+
+// Style cho markdown trong bubble bot
+const markdownStyles = {
+  body: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#1F2937',
+  },
+  strong: {
+    fontWeight: '700' as const,
+    color: '#1D4ED8',  // highlight từ khoá màu xanh đậm
+  },
+  em: {
+    fontStyle: 'italic' as const,
+    color: '#374151',
+  },
+  bullet_list: {
+    marginVertical: 4,
+  },
+  ordered_list: {
+    marginVertical: 4,
+  },
+  list_item: {
+    marginVertical: 2,
+  },
+  code_inline: {
+    backgroundColor: '#E5E7EB',
+    borderRadius: 4,
+    paddingHorizontal: 4,
+    fontFamily: 'monospace',
+    fontSize: 13,
+    color: '#DC2626',
+  },
+  fence: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 13,
+    color: '#1F2937',
+  },
+  heading1: { fontSize: 18, fontWeight: '700' as const, color: '#111827', marginVertical: 6 },
+  heading2: { fontSize: 16, fontWeight: '700' as const, color: '#111827', marginVertical: 4 },
+  heading3: { fontSize: 15, fontWeight: '600' as const, color: '#374151', marginVertical: 4 },
+};

@@ -21,22 +21,22 @@ import { getUserProfile, getTeam, getTeamMembers } from '../../services/firestor
 import { getAuth } from 'firebase/auth';
 
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Kiểu dữ liệu ─────────────────────────────────────────────────────────────
 
 interface Activity {
   id: string;
   title: string;
   description: string;
   nextScreen: string;
-  icon: string; // MaterialCommunityIcons name
-  iconColor: string; // icon tint colour
-  iconBg: string; // icon background circle colour
+  icon: string;      // tên icon từ MaterialCommunityIcons
+  iconColor: string; // màu icon
+  iconBg: string;    // màu nền vòng tròn icon
 }
 
-// ─── Activity data ────────────────────────────────────────────────────────────
+// ─── Dữ liệu hoạt động ────────────────────────────────────────────────────────
 
-// First 4 → Engineering Challenges section
-// Last 3  → Health & Medical Science section
+// 4 cái đầu → nhóm Engineering Challenges
+// 3 cái cuối → nhóm Health & Medical Science
 const activities: Activity[] = [
   {
     id: "1",
@@ -109,9 +109,9 @@ const activities: Activity[] = [
   },
 ];
 
-// ─── Grid card component ──────────────────────────────────────────────────────
+// ─── Component thẻ lưới ───────────────────────────────────────────────────────
 
-// Height of a standard square grid card — used to size the tall card (activity 7)
+// Chiều cao cố định của thẻ vuông — dùng để căn chỉnh thẻ cao (activity 7)
 const CARD_H = 160;
 const GAP = 12;
 
@@ -120,8 +120,8 @@ interface GridCardProps {
 }
 
 /**
- * GridCard — a pressable card used in the activity grid sections.
- * Shows a coloured icon circle, title, and truncated description.
+ * GridCard — thẻ có thể nhấn dùng trong lưới hoạt động.
+ * Hiển thị vòng tròn icon màu, tiêu đề và mô tả rút gọn.
  */
 const GridCard: React.FC<GridCardProps> = ({ activity }) => {
   const router = useRouter();
@@ -135,7 +135,7 @@ const GridCard: React.FC<GridCardProps> = ({ activity }) => {
       ]}
       onPress={() => router.navigate(`./screens/${activity.nextScreen}`)}
     >
-      {/* Coloured icon circle */}
+      {/* Vòng tròn icon màu */}
       <View style={[gs.iconCircle, { backgroundColor: activity.iconBg }]}>
         <MaterialCommunityIcons
           name={activity.icon as any}
@@ -144,17 +144,17 @@ const GridCard: React.FC<GridCardProps> = ({ activity }) => {
         />
       </View>
 
-      {/* Activity title */}
+      {/* Tiêu đề hoạt động */}
       <Text style={gs.cardTitle} numberOfLines={2}>
         {activity.title}
       </Text>
 
-      {/* Truncated description */}
+      {/* Mô tả rút gọn */}
       <Text style={gs.cardDesc} numberOfLines={2}>
         {activity.description}
       </Text>
 
-      {/* Bottom arrow */}
+      {/* Mũi tên góc dưới phải */}
       <View style={gs.arrowRow}>
         <MaterialCommunityIcons name="arrow-right" size={16} color="#9CA3AF" />
       </View>
@@ -164,14 +164,14 @@ const GridCard: React.FC<GridCardProps> = ({ activity }) => {
 
 
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
+// ─── Màn hình chính ───────────────────────────────────────────────────────────
 
 /**
- * HomeScreen — main landing screen with two activity sections:
- *   1. Engineering Challenges  (activities 1–4) — 2 × 2 grid
- *   2. Health & Medical Science (activities 5–7) — 2-col row + 1 tall full-width card
+ * HomeScreen — màn hình chính gồm hai nhóm hoạt động:
+ *   1. Engineering Challenges  (hoạt động 1–4) — lưới 2 × 2
+ *   2. Health & Medical Science (hoạt động 5–7) — 2 thẻ ngang + 1 thẻ cao toàn chiều rộng
  */
-const CHAT_HEIGHT = Dimensions.get('window').height * 0.58;
+const CHAT_HEIGHT = 480;
 
 export default function HomeScreen() {
   const engineering = activities.slice(0, 4);
@@ -185,25 +185,53 @@ export default function HomeScreen() {
   const [grade, setGrade] = useState('');
 
   const [chatOpen, setChatOpen] = useState(false);
+
+  // chatHeight tự động thu nhỏ trên màn hình nhỏ khi bàn phím chiếm quá nhiều chỗ
+  const [chatHeight, setChatHeight] = useState(CHAT_HEIGHT);
+
+  // slideAnim: 0 = panel hiện ở đáy màn hình, CHAT_HEIGHT = panel ẩn bên dưới màn hình
   const slideAnim = useRef(new Animated.Value(CHAT_HEIGHT)).current;
+
+  // keyboardAnim: 0 = không có bàn phím, -keyboardHeight = panel được đẩy lên trên bàn phím
+  // Dùng số âm vì translateY âm = di chuyển lên trên
   const keyboardAnim = useRef(new Animated.Value(0)).current;
 
+  // Gộp hai animation thành một translateY duy nhất — cùng dùng useNativeDriver:true, không lỗi
+  // Khi đóng:        CHAT_HEIGHT + 0               = CHAT_HEIGHT  (ẩn dưới màn hình)
+  // Khi mở:          0 + 0                         = 0            (nằm ở đáy màn hình)
+  // Khi có bàn phím: 0 + (-keyboardHeight)         = -keyboardHeight (trượt lên trên bàn phím)
+  const combinedAnim = Animated.add(slideAnim, keyboardAnim);
+
   useEffect(() => {
+    // iOS bắn sự kiện `Will` TRƯỚC khi bàn phím hiện → panel di chuyển đồng bộ với bàn phím.
+    // Android chỉ có sự kiện `Did` (bắn SAU khi bàn phím đã hiện) → có thể bị giật nhẹ.
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
     const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 
     const showSub = Keyboard.addListener(showEvent, (e) => {
+      const screenH = Dimensions.get('window').height;
+
+      // Giới hạn chatHeight để panel không tràn lên trên màn hình trên thiết bị nhỏ.
+      // Ví dụ iPhone SE (màn 667px, bàn phím 291px): available = 667 - 291 - 20 = 356px
+      const available = screenH - e.endCoordinates.height - 20;
+      setChatHeight(Math.min(CHAT_HEIGHT, available));
+
+      // Đẩy panel lên bằng translateY âm — dùng useNativeDriver:true, không lỗi 'bottom'
       Animated.timing(keyboardAnim, {
-        toValue: e.endCoordinates.height,
+        toValue: -208,
         duration: e.duration ?? 250,
-        useNativeDriver: false,
+        useNativeDriver: true,
       }).start();
     });
+
     const hideSub = Keyboard.addListener(hideEvent, (e) => {
+      // Khôi phục chiều cao và hạ panel về đáy màn hình khi bàn phím đóng.
+      setChatHeight(CHAT_HEIGHT);
+
       Animated.timing(keyboardAnim, {
         toValue: 0,
         duration: e.duration ?? 250,
-        useNativeDriver: false,
+        useNativeDriver: true,
       }).start();
     });
 
@@ -212,6 +240,7 @@ export default function HomeScreen() {
 
   const openChat = () => {
     setChatOpen(true);
+    // Trượt panel từ ngoài màn hình lên (translateY: CHAT_HEIGHT → 0)
     Animated.spring(slideAnim, {
       toValue: 0,
       useNativeDriver: true,
@@ -220,6 +249,7 @@ export default function HomeScreen() {
   };
 
   const closeChat = () => {
+    // Trượt panel xuống rồi unmount để giải phóng bộ nhớ
     Animated.timing(slideAnim, {
       toValue: CHAT_HEIGHT,
       duration: 220,
@@ -256,74 +286,84 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Header userName={userName} />
+    <View style={styles.root}>
+      <SafeAreaView style={styles.container}>
+        <Header userName={userName} />
 
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainer}
-      >
-        <TeamInfoCard
-          teamName={teamName}
-          teamId={teamId}
-          members={memberNames}
-          grade={grade}
-          points={450}
-          rank={12}
-        />
-
-        {/* ── Section 1: Engineering Challenges ── */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Engineering Challenges</Text>
-
-          {/* Row 1: activities 1 & 2 */}
-          <View style={styles.gridRow}>
-            <GridCard activity={engineering[0]} />
-            <GridCard activity={engineering[1]} />
-          </View>
-
-          {/* Row 2: activities 3 & 4 */}
-          <View style={styles.gridRow}>
-            <GridCard activity={engineering[2]} />
-            <GridCard activity={engineering[3]} />
-          </View>
-        </View>
-
-        {/* ── Section 2: Health & Medical Science ── */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Health & Medical Science</Text>
-
-          {/* Row 1: activities 5 & 6 side by side */}
-          <View style={styles.gridRow}>
-            <GridCard activity={health[0]} />
-            <GridCard activity={health[1]} />
-          </View>
-
-          {/* Row 2: activity 7 full-width */}
-          <GridCard activity={healthTall} />
-        </View>
-      </ScrollView>
-
-      {/* ── Floating chat bubble — hidden while chat is open (header has close button) ── */}
-      {!chatOpen && (
-        <Pressable
-          style={({ pressed }) => [styles.fab, pressed && { opacity: 0.85 }]}
-          onPress={openChat}
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.contentContainer}
         >
-          <MaterialCommunityIcons name="chat" size={24} color="#fff" />
-        </Pressable>
-      )}
+          <TeamInfoCard
+            teamName={teamName}
+            teamId={teamId}
+            members={memberNames}
+            grade={grade}
+            points={450}
+            rank={12}
+          />
 
-      {/* ── Slide-up chat panel ── */}
-      {/* Outer view lifts panel above keyboard (useNativeDriver:false required for layout props) */}
-      {/* Inner view handles the slide animation (useNativeDriver:true for transform) */}
+          {/* ── Nhóm 1: Engineering Challenges ── */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Engineering Challenges</Text>
+
+            {/* Hàng 1: hoạt động 1 & 2 */}
+            <View style={styles.gridRow}>
+              <GridCard activity={engineering[0]} />
+              <GridCard activity={engineering[1]} />
+            </View>
+
+            {/* Hàng 2: hoạt động 3 & 4 */}
+            <View style={styles.gridRow}>
+              <GridCard activity={engineering[2]} />
+              <GridCard activity={engineering[3]} />
+            </View>
+          </View>
+
+          {/* ── Nhóm 2: Health & Medical Science ── */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Health & Medical Science</Text>
+
+            {/* Hàng 1: hoạt động 5 & 6 nằm ngang */}
+            <View style={styles.gridRow}>
+              <GridCard activity={health[0]} />
+              <GridCard activity={health[1]} />
+            </View>
+
+            {/* Hàng 2: hoạt động 7 chiếm toàn chiều rộng */}
+            <GridCard activity={healthTall} />
+          </View>
+        </ScrollView>
+
+        {/* ── Nút chat nổi — ẩn khi chat đang mở ── */}
+        {!chatOpen && (
+          <Pressable
+            style={({ pressed }) => [styles.fab, pressed && { opacity: 0.8 }]}
+            onPress={openChat}
+          >
+            <MaterialCommunityIcons name="chat" size={24} color="#fff" />
+          </Pressable>
+        )}
+      </SafeAreaView>
+
+      {/*
+        ── Panel chat trượt lên ──
+        Đặt NGOÀI SafeAreaView là có chủ đích:
+          • Bên trong SafeAreaView, bottom:0 = phía trên vùng home-indicator (~34px trên đáy vật lý)
+          • Bên ngoài SafeAreaView, bottom:0 = đáy vật lý màn hình = cùng tham chiếu với e.endCoordinates.height
+          • Nhờ vậy, đặt bottom = chiều cao bàn phím → panel khớp sát bàn phím, không có khoảng trống.
+
+        Một Animated.View duy nhất với combinedAnim = slideAnim + keyboardAnim:
+          • slideAnim:    CHAT_HEIGHT → 0  (mở/đóng panel)
+          • keyboardAnim: 0 → -keyboardHeight  (đẩy lên trên bàn phím)
+          • Cả hai cùng useNativeDriver:true → không lỗi 'bottom not supported'
+      */}
       {chatOpen && (
-        <Animated.View style={[styles.chatPanelOuter, { bottom: keyboardAnim }]}>
         <Animated.View
-          style={[styles.chatPanel, { transform: [{ translateY: slideAnim }] }]}
+          style={[styles.chatPanel, { transform: [{ translateY: combinedAnim }] }]}
         >
-          {/* Panel header — Messenger-style */}
+          {/* Thanh tiêu đề panel */}
           <View style={styles.chatHeader}>
             <View style={styles.chatHeaderLeft}>
               <View style={styles.chatAvatar}>
@@ -342,19 +382,18 @@ export default function HomeScreen() {
             </Pressable>
           </View>
 
-          {/* Chat content */}
-          <ChatBox height={CHAT_HEIGHT - 56} />
-        </Animated.View>
+          {/* Nội dung chat */}
+          <ChatBox height={chatHeight - 80} />
         </Animated.View>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
-// ─── Grid card styles ─────────────────────────────────────────────────────────
+// ─── Style thẻ lưới ───────────────────────────────────────────────────────────
 
 const gs = StyleSheet.create({
-  // Card container — flex:1 so both cards in a row split the width equally
+  // Khung thẻ — flex:1 để hai thẻ trong một hàng chia đều chiều rộng
   card: {
     flex: 1,
     backgroundColor: "#fff",
@@ -368,7 +407,7 @@ const gs = StyleSheet.create({
     elevation: 3,
   },
 
-  // Rounded icon background circle
+  // Vòng tròn nền icon
   iconCircle: {
     width: 44,
     height: 44,
@@ -378,7 +417,7 @@ const gs = StyleSheet.create({
     marginBottom: 10,
   },
 
-  // Card title — bold, allows 2 lines
+  // Tiêu đề thẻ — đậm, tối đa 2 dòng
   cardTitle: {
     fontSize: 13,
     fontWeight: "700",
@@ -387,7 +426,7 @@ const gs = StyleSheet.create({
     lineHeight: 18,
   },
 
-  // Card description — muted, small
+  // Mô tả thẻ — màu nhạt, chữ nhỏ
   cardDesc: {
     fontSize: 11,
     color: "#6B7280",
@@ -395,16 +434,19 @@ const gs = StyleSheet.create({
     flex: 1,
   },
 
-  // Arrow pinned to the bottom-right
+  // Mũi tên ghim góc dưới phải
   arrowRow: {
     alignItems: "flex-end",
     marginTop: 6,
   },
 });
 
-// ─── Screen styles ────────────────────────────────────────────────────────────
+// ─── Style màn hình chính ─────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: "#F8F4EF",
@@ -431,7 +473,7 @@ const styles = StyleSheet.create({
     marginBottom: GAP,
   },
 
-  // Floating action button
+  // Nút chat nổi góc phải bên dưới
   fab: {
     position: 'absolute',
     bottom: 24,
@@ -450,17 +492,13 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
 
-  // Outer wrapper — moves panel above keyboard (bottom is animated, no native driver)
-  chatPanelOuter: {
+  // Panel chat — nằm cố định ở đáy màn hình, translateY điều khiển vị trí
+  chatPanel: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     zIndex: 7,
-  },
-
-  // Slide-up chat panel
-  chatPanel: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
