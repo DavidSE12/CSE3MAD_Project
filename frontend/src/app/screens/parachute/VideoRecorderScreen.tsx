@@ -16,9 +16,13 @@ export default function VideoRecorderScreen() {
       <SafeAreaView style={styles.container}>
         <BaseVideoPreview
           videoUri={video}
-          onProceed={() => {
+          onProceed={(markedTime) => {
             setVideo(null);
-            router.push("./CalculationScreen");
+            console.log("Marked time: ", markedTime);
+            router.push({
+              pathname: "./CalculationScreen",
+              params: { markedTime: markedTime.toFixed(2) }, // passed to next screen,
+            });
           }}
           onRetake={() => setVideo(null)}
         />
