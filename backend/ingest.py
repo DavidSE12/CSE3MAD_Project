@@ -5,7 +5,7 @@ load_dotenv()
 
 DOCUMENTS = [
     "documents/STEMM_Lab_Summary.pdf",
-    # "documents/another.pdf",
+    # When expand the app in the future, improve by split/add more documents
 ]
 
 if __name__ == "__main__":

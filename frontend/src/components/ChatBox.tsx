@@ -51,6 +51,8 @@ export default function ChatBox({ height }: ChatBoxProps) {
     setInput('');     // clear the input field
     setLoading(true); // show the typing indicator
 
+    console.log('[ChatBox] User:', question);
+
     try {
       // POST the question to the /chat endpoint
       const res = await fetch(`${BACKEND_URL}/chat`, {
@@ -70,6 +72,7 @@ export default function ChatBox({ height }: ChatBoxProps) {
         text: data.answer ?? 'No answer returned.', // fall back if the backend omits the field
       };
 
+      console.log('[ChatBox] AI:', botMsg.text);
       setMessages((prev) => [...prev, botMsg]); // append AI reply to list
     } catch (err: any) {
       // On any network or server error, show a friendly error bubble
